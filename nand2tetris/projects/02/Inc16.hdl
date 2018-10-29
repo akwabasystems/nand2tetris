@@ -1,0 +1,21 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Inc16.hdl
+
+/**
+ * 16-bit incrementer:
+ * out = in + 1 (arithmetic addition)
+ *
+ * To generate a constant 1, a random input bit is negated and Xor'd with itself.
+ * The constant is then fed into the first block of the second 16-bit input
+ */
+
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+	  Add16 (a=in, b[0]=true, out=out);
+
+}

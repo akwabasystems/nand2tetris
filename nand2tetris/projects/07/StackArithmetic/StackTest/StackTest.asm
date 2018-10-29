@@ -1,0 +1,383 @@
+@17
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@17
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_ZERO_1
+    D;JEQ
+    @SP
+    A=M
+    M=0
+    @END_1
+    0;JMP
+(IF_ZERO_1)
+    @SP
+    A=M
+    M=-1
+(END_1)
+    @SP
+    M=M+1
+@17
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@16
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_ZERO_2
+    D;JEQ
+    @SP
+    A=M
+    M=0
+    @END_2
+    0;JMP
+(IF_ZERO_2)
+    @SP
+    A=M
+    M=-1
+(END_2)
+    @SP
+    M=M+1
+@16
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@17
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_ZERO_3
+    D;JEQ
+    @SP
+    A=M
+    M=0
+    @END_3
+    0;JMP
+(IF_ZERO_3)
+    @SP
+    A=M
+    M=-1
+(END_3)
+    @SP
+    M=M+1
+@892
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@891
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_LESS_THAN_4
+    D;JLT
+    @SP
+    A=M
+    M=0
+    @END_4
+    0;JMP
+(IF_LESS_THAN_4)
+    @SP
+    A=M
+    M=-1
+(END_4)
+    @SP
+    M=M+1
+@891
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@892
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_LESS_THAN_5
+    D;JLT
+    @SP
+    A=M
+    M=0
+    @END_5
+    0;JMP
+(IF_LESS_THAN_5)
+    @SP
+    A=M
+    M=-1
+(END_5)
+    @SP
+    M=M+1
+@891
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@891
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_LESS_THAN_6
+    D;JLT
+    @SP
+    A=M
+    M=0
+    @END_6
+    0;JMP
+(IF_LESS_THAN_6)
+    @SP
+    A=M
+    M=-1
+(END_6)
+    @SP
+    M=M+1
+@32767
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@32766
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_GREATER_THAN_7
+    D;JGT
+    @SP
+    A=M
+    M=0
+    @END_7
+    0;JMP
+(IF_GREATER_THAN_7)
+    @SP
+    A=M
+    M=-1
+(END_7)
+    @SP
+    M=M+1
+@32766
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@32767
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_GREATER_THAN_8
+    D;JGT
+    @SP
+    A=M
+    M=0
+    @END_8
+    0;JMP
+(IF_GREATER_THAN_8)
+    @SP
+    A=M
+    M=-1
+(END_8)
+    @SP
+    M=M+1
+@32766
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@32766
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+    @SP
+    AM=M-1
+    D=M
+    @SP
+    AM=M-1
+    D=M-D
+    @IF_GREATER_THAN_9
+    D;JGT
+    @SP
+    A=M
+    M=0
+    @END_9
+    0;JMP
+(IF_GREATER_THAN_9)
+    @SP
+    A=M
+    M=-1
+(END_9)
+    @SP
+    M=M+1
+@57
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@31
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@53
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+MD=D+M
+@SP
+M=M+1
+@112
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+MD=M-D
+@SP
+M=M+1
+@SP
+AM=M-1
+M=-M
+@SP
+M=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+MD=D&M
+@SP
+M=M+1
+@82
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+MD=D|M
+@SP
+M=M+1
+@SP
+AM=M-1
+M=!M
+@SP
+M=M+1

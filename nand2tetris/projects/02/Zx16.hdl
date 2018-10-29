@@ -1,0 +1,20 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/And16.hdl
+
+/**
+ * 16-bit Zero constant:
+ * for i = 0..15: out[i] = 0
+ */
+
+CHIP Zx16 {
+    IN a[16];
+    OUT out[16];
+
+    PARTS:
+    // Negate the input, and add it to itself
+    Not16 (in=a, out=out0);
+	And16 (a=a, b=out0, out=out);
+	
+}
