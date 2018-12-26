@@ -2,13 +2,16 @@
 package com.akwabasystems.asm;
 
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
 
 
-public class SymbolTests extends TestCase {
+public class SymbolTests {
     
     
-    public void testPredefinedSymbols() {
+    @Test
+    public void predefinedSymbols() {
         SymbolTable symbolTable = new SymbolTable();
         symbolTable.initialize();
         
@@ -40,7 +43,8 @@ public class SymbolTests extends TestCase {
     }
     
 
-    public void testSymbolTable() {
+    @Test
+    public void symbolTable() {
         SymbolTable symbolTable = new SymbolTable();
         symbolTable.initialize();
         

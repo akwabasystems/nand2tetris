@@ -9,7 +9,7 @@ package com.akwabasystems.asm;
  * An instruction can be of two different types. An A-instruction is used to set the A register to a 15-bit value,
  * while a C-instruction specifies what to compute, where to store the computed value, and what to do next (proceed to
  * the next instruction or jump to a specified instruction). In addition, there is also an L-instruction (or label),
- * which uniquely identifies the location a given instruction, and is used for jump commands.
+ * which uniquely identifies the location of a given instruction, and is used for jump commands.
  */
 public abstract class Instruction {
     

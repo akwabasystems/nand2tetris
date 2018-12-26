@@ -52,8 +52,7 @@ public final class Code {
      * @return the bit string of the "dest" field for this code
      */
     public String dest() {
-        return (destMnemonic == null)? Destination.NONE.toBitString() : 
-                Destination.fromMnemonic(destMnemonic.getValue()).toBitString();
+        return Destination.fromMnemonic(destMnemonic.getValue()).toBitString();
     }
     
     
