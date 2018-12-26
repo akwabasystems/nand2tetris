@@ -1,12 +1,15 @@
 
 package com.akwabasystems.asm;
 
-import junit.framework.TestCase;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class InstructionTests extends TestCase {
+public class InstructionTests {
     
-    
+    @Test
     public void testAInstruction() {
         Instruction instruction = new AInstruction("@7");
         String binaryCode = instruction.binaryCode();
@@ -18,6 +21,7 @@ public class InstructionTests extends TestCase {
     }
     
     
+     @Test
     public void testCInstruction() {
         Instruction instruction = new CInstruction("D=A");
         String binaryCode = instruction.binaryCode();
@@ -56,6 +60,7 @@ public class InstructionTests extends TestCase {
     }
     
     
+    @Test
     public void testCInstructionWithComments() {
         Instruction instruction = new CInstruction("D=A");
         String binaryCode = instruction.binaryCode();

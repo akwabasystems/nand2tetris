@@ -54,7 +54,7 @@ public final class CInstruction extends Instruction {
                 
             } else {
             
-                /** Handle the use for normal expressions (for instance, M=1 or D=M) */
+                /** Handle the use case for normal expressions (for instance, M=1 or D=M) */
                 String[] fields = command.split("=");
                 dest = fields[0];
                 comp = fields[1];

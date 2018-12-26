@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 /**
  * An enumeration of the different destination fields in a C-instruction. Each field (or constant) has a method for
@@ -75,17 +77,12 @@ public enum Destination {
      * @return the enum constant whose name matches the given mnemonic
      */
     public static Destination fromMnemonic(String mnemonic) {
-        if(mnemonic == null) {
-            return Destination.NONE;
-        }
         
-        for(Destination destination : values()) {
-            if(destination.name().equals(mnemonic.toUpperCase())) {
-                return destination;
-            }
-        }
-        
-        return Destination.NONE;
+        return Stream.of(values())
+                     .filter((destination) -> destination.name().equalsIgnoreCase(mnemonic))
+                     .findFirst()
+                     .orElse(NONE);
+
     }
     
     
@@ -96,17 +93,12 @@ public enum Destination {
      * @return the enum constant whose bit string matches the given bits
      */
     public static Destination fromBits(String bits) {
-        if(bits == null) {
-            return Destination.NONE;
-        }
         
-        for(Destination destination : values()) {
-            if(destination.toBitString().equals(bits)) {
-                return destination;
-            }
-        }
+        return Stream.of(values())
+                     .filter((destination) -> destination.toBitString().equals(bits))
+                     .findFirst()
+                     .orElse(NONE);
         
-        return Destination.NONE;
     }
     
     

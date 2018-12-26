@@ -2,12 +2,15 @@
 package com.akwabasystems.asm;
 
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class SymbolParserTests extends TestCase {
+public class SymbolParserTests {
     
-    public void testInstructionsWithComments() {
+    @Test
+    public void instructionsWithComments() {
         Parser parser = new AssemblyParser();
 
         parser.parse("// This file contains comments");
@@ -62,7 +65,8 @@ public class SymbolParserTests extends TestCase {
     }
     
     
-    public void testMax() {
+    @Test
+    public void max() {
         Parser parser = new AssemblyParser();
         
         parser.parse("@R0");
@@ -111,7 +115,8 @@ public class SymbolParserTests extends TestCase {
     }
     
     
-    public void testRect() {
+    @Test
+    public void rect() {
         Parser parser = new AssemblyParser();
         
         parser.parse("@0");

@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public final class SymbolTable {
     
-    private Map<String,Integer> symbols = new HashMap<String,Integer>();
+    private final Map<String,Integer> symbols = new HashMap<String,Integer>();
     
     
     /**
