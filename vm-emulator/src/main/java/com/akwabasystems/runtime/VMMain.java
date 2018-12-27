@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * The entry file for the VMEmulator program. It reads a ".vm" file, or a directory containing ".vm" file, parses the
- * commands inside those file(s), and outputs the corresponding assembly files (".asm" extension).
+ * commands inside the file(s), and outputs the corresponding assembly files (".asm" extension).
  * 
  * Usage:
  *          java -jar VMEmulator-jar-with-dependencies [--no-bootstrap] <fileOrDirectory>
@@ -29,17 +29,16 @@ public final class VMMain {
 
     private static boolean shouldBootstrap = true;
     
-    private static Function<File,Boolean> IsSysInitFile = (file) -> {
+    private static final Function<File,Boolean> IsSysInitFile = (file) -> {
         return (file.getName().equalsIgnoreCase("Sys.vm") || 
                 file.getName().equalsIgnoreCase("SysInit.vm"));
     };
     
-    private static Function<File,Boolean> HasVMExtension = (file) -> {
+    private static final Function<File,Boolean> HasVMExtension = (file) -> {
         String[] parts = StringUtils.split(file.getName(), ".");
         return (parts[parts.length - 1].equals("vm"));
     };
     
-    //private static final Predicate<File> isSysInitFile = (file) -> isInitFile.apply(file);
     
     /**
      * The entry point into the application
@@ -77,14 +76,8 @@ public final class VMMain {
         
         if(inputFile.exists()) {
             if(inputFile.isDirectory()) {
-                for(File file : inputFile.listFiles()) {
-                    boolean endsWithVM = HasVMExtension.apply(file);
-
-                    if(endsWithVM) {
-                        isVMFile = true;
-                        break;
-                    }
-                }
+                  isVMFile = Stream.of(inputFile.listFiles())
+                                   .anyMatch((file) -> HasVMExtension.apply(file));
             } else {
                 isVMFile = HasVMExtension.apply(inputFile);
             }
@@ -111,7 +104,7 @@ public final class VMMain {
     private static void handleInputFile(final File inputFile) {
         String outputFileName;
         boolean isDirectory = inputFile.isDirectory();
-        
+
         if(isDirectory) {
             outputFileName = String.format("%s.asm", inputFile.getName());
         } else {
@@ -120,14 +113,12 @@ public final class VMMain {
         }
         
         /** Pre-process the file to make sure that any "Sys.vm" file, if present, gets processed first */ 
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
 
         if(isDirectory) {
-
             Stream.of(inputFile.listFiles())
                     .filter(file -> IsSysInitFile.apply(file))
                     .forEach(file -> files.add(file));                             
-
         } else {
             files.add(inputFile);
         }
@@ -151,10 +142,10 @@ public final class VMMain {
                 inputFile.getAbsolutePath().replace(inputFile.getName(), outputFileName);
         StringBuilder builder = new StringBuilder();
 
-        for(File file : files) {
+        files.stream().forEach((file) -> {
             builder.append(parseFile(file))
                    .append("\n");
-        }
+        });
 
         writeAssemblyCode(builder.toString(), outputFilePath);
     }

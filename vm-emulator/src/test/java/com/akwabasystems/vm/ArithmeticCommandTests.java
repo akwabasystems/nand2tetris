@@ -4,13 +4,16 @@ package com.akwabasystems.vm;
 
 import com.akwabasystems.model.CommandType;
 import com.akwabasystems.model.VMCommand;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class ArithmeticCommandTests extends TestCase {
+public class ArithmeticCommandTests {
     
     
-    public void testPushConstant() {
+    @Test
+    public void pushConstant() {
         VMCommand command = CommandType.fromCommand("push constant 7");
         assertNotNull(command);
         
@@ -46,7 +49,8 @@ public class ArithmeticCommandTests extends TestCase {
     }
 
     
-    public void testAddCommand() {
+    @Test
+    public void addCommand() {
         VMCommand command = CommandType.fromCommand("add");
         assertNotNull(command);
         
@@ -66,8 +70,9 @@ public class ArithmeticCommandTests extends TestCase {
         assertEquals(assemblyCode, expectedCode.toString());
     }
 
-
-    public void testSubCommand() {
+    
+    @Test
+    public void subCommand() {
         VMCommand command = CommandType.fromCommand("sub");
         assertNotNull(command);
         
@@ -88,7 +93,8 @@ public class ArithmeticCommandTests extends TestCase {
     }
 
     
-    public void testAndCommand() {
+    @Test
+    public void andCommand() {
         VMCommand command = CommandType.fromCommand("and");
         assertNotNull(command);
         

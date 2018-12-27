@@ -30,7 +30,7 @@ public final class VMParser implements Parser {
     
     private final List<VMCommand> commands = Collections.synchronizedList(new ArrayList<VMCommand>());
     private String fileName;
-    private final Stack<String> contexts = new Stack<String>();
+    private final Stack<String> contexts = new Stack<>();
     
     
     /**
@@ -44,10 +44,11 @@ public final class VMParser implements Parser {
     
     /**
      * Parses the given command and adds its corresponding VMCommand object to the command list. It sets the context
-     * of each command to the approriate one when entering and leaving a function.
+     * of each command to the appropriate one when entering and leaving a function.
      * 
      * @param command       the command to parse
      */
+    @Override
     public void parse(String command) {
         String syntax = VMUtils.stripComments(command);
         boolean isComment = syntax.startsWith("//") || (syntax.startsWith("/*") && syntax.endsWith("*/"));
@@ -79,6 +80,7 @@ public final class VMParser implements Parser {
      * @param fileName          the name to set for the parser
      * @return a reference to the Parser instance
      */
+    @Override
     public Parser setFileName(String fileName) {
         this.fileName = fileName;
         return this;
@@ -113,6 +115,7 @@ public final class VMParser implements Parser {
      * 
      * @return the current function context for this parser
      */
+    @Override
     public String currentFunctionContext() {
         return contexts.peek();
     }
@@ -179,28 +182,24 @@ public final class VMParser implements Parser {
      * 
      * @return the assembly code from the parsed VM commands
      */
+    @Override
     public String assemblyCode() {
         StringBuilder buffer = new StringBuilder();
 
         synchronized(commands) {
-            Iterator iterator = commands.iterator();
-            
-            while(iterator.hasNext()) {
-                VMCommand command = (VMCommand) iterator.next();
+            commands.stream().forEach((command) -> {
                 command.setFileName(fileName);
-                
                 String assemblyCode = command.toAssemblyCode();
                 
                 if(!assemblyCode.isEmpty()) {
                     buffer.append(assemblyCode);
-                    
                     boolean isLast = (commands.indexOf(command) == commands.size() - 1);
                 
                     if(!isLast) {
                         buffer.append("\n");
                     }
                 }
-            }
+            });
         }
         
         return buffer.toString();

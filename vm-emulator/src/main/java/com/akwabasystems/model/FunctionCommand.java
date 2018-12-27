@@ -23,6 +23,7 @@ public final class FunctionCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("(%s)", getArgument1()));

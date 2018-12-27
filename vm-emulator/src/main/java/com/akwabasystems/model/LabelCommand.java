@@ -24,6 +24,7 @@ public final class LabelCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         return String.format("(%s$%s)", getContext(), getArgument1());
     }
