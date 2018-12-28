@@ -40,7 +40,11 @@ public class FunctionCallTests {
     public void functionCall() {
         Parser parser = new VMParser();
         
+        assertEquals(parser.currentFunctionContext(), "Main");
+        
         parser.parse("call Sys.init 0");
+        assertEquals(parser.currentFunctionContext(), "Main");
+        
         parser.parse("function Sys.init 0");
         assertEquals(parser.currentFunctionContext(), "Sys.init");
         
@@ -50,8 +54,8 @@ public class FunctionCallTests {
         parser.parse("return\n");
         assertEquals(parser.currentFunctionContext(), "Main");
         
-        parser.parse("call Fibonacci 1\n");
-        parser.parse("call Fibonacci 1\n");
+        parser.parse("call Fibonacci-1 1\n");
+        parser.parse("call Fibonacci-2 1\n");
         assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("return\n");

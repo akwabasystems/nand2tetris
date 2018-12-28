@@ -8,7 +8,6 @@ import com.akwabasystems.model.VMCommand;
 import com.akwabasystems.utils.VMUtils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -61,14 +60,20 @@ public final class VMParser implements Parser {
             /** Set the current context to the parsed function */
             boolean isFunction = (currentCommand.getType() == CommandType.C_FUNCTION);
             boolean isReturn = (currentCommand.getType() == CommandType.C_RETURN);
-
-            if(isFunction) {
-                onFunctionEnter(currentCommand.getArgument1());
-            } else if(isReturn) {
-                onFunctionExit();
+            String parentContext = contexts.peek();
+            
+            if(!(isFunction || isReturn)) {
+                currentCommand.setContext(parentContext);
+            } else {
+                if(isFunction) {
+                    onFunctionEnter(currentCommand.getArgument1());
+                } else {
+                    onFunctionExit();
+                }
+                
+                currentCommand.setContext(contexts.peek());
             }
 
-            currentCommand.setContext(contexts.peek());
             commands.add(currentCommand);
         }
     }

@@ -173,7 +173,8 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the context for this command
      */
-    protected String getContext() {
+    @Override
+    public String getContext() {
         return context;
     }
     
