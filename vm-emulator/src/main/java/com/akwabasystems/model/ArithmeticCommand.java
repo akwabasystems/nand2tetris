@@ -25,6 +25,7 @@ public final class ArithmeticCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         ArithmeticCommandType commandType = ArithmeticCommandType.fromCommand(getCommand());
         return commandType.toAssemblyCode(getCommand());

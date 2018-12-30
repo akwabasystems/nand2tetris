@@ -259,7 +259,7 @@ public enum ArithmeticCommandType {
         String[] parts = syntax.split(" ");
 
         for(ArithmeticCommandType type : values()) {
-            if(type.name().toLowerCase().equals(parts[0])) {
+            if(type.name().toLowerCase().equals(parts[0].toLowerCase())) {
                 return type;
             }
         }

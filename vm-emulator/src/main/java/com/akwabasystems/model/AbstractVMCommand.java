@@ -76,6 +76,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the type for this command
      */
+    @Override
     public CommandType getType() {
         return type;
     }
@@ -96,6 +97,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the command string for this command
      */
+    @Override
     public String getCommand() {
         return command;
     }
@@ -116,6 +118,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the first argument for this command
      */
+    @Override
     public String getArgument1() {
         return argument1;
     };
@@ -126,6 +129,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the second argument for this command
      */
+    @Override
     public int getArgument2() {
         return argument2;
     }
@@ -136,6 +140,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @param fileName       the file name to set for this command
      */
+    @Override
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -157,6 +162,7 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @param context          the context to set for this command
      */
+    @Override
     public void setContext(String context) {
         this.context = context;
     }
@@ -167,7 +173,8 @@ public abstract class AbstractVMCommand implements VMCommand {
      * 
      * @return the context for this command
      */
-    protected String getContext() {
+    @Override
+    public String getContext() {
         return context;
     }
     

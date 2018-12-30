@@ -8,9 +8,9 @@ import com.akwabasystems.model.VMCommand;
 import com.akwabasystems.utils.VMUtils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 
 /**
@@ -30,8 +30,11 @@ public final class VMParser implements Parser {
     
     private final List<VMCommand> commands = Collections.synchronizedList(new ArrayList<VMCommand>());
     private String fileName;
-    private final Stack<String> contexts = new Stack<String>();
-    
+    private final Stack<String> contexts = new Stack<>();
+    private static SymbolTable symbolTable;
+    private static int instructionCounter = 0;
+    private static int addressCounter = 16;
+
     
     /**
      * Default constructor. Initializes the function context to "Main".
@@ -44,10 +47,11 @@ public final class VMParser implements Parser {
     
     /**
      * Parses the given command and adds its corresponding VMCommand object to the command list. It sets the context
-     * of each command to the approriate one when entering and leaving a function.
+     * of each command to the appropriate one when entering and leaving a function.
      * 
      * @param command       the command to parse
      */
+    @Override
     public void parse(String command) {
         String syntax = VMUtils.stripComments(command);
         boolean isComment = syntax.startsWith("//") || (syntax.startsWith("/*") && syntax.endsWith("*/"));
@@ -60,16 +64,98 @@ public final class VMParser implements Parser {
             /** Set the current context to the parsed function */
             boolean isFunction = (currentCommand.getType() == CommandType.C_FUNCTION);
             boolean isReturn = (currentCommand.getType() == CommandType.C_RETURN);
-
-            if(isFunction) {
-                onFunctionEnter(currentCommand.getArgument1());
-            } else if(isReturn) {
-                onFunctionExit();
+            String parentContext = contexts.peek();
+            
+            if(!(isFunction || isReturn)) {
+                currentCommand.setContext(parentContext);
+            } else {
+                if(isFunction) {
+                    onFunctionEnter(currentCommand.getArgument1());
+                } else {
+                    onFunctionExit();
+                }
+                
+                currentCommand.setContext(contexts.peek());
             }
 
-            currentCommand.setContext(contexts.peek());
             commands.add(currentCommand);
         }
+    }
+    
+    
+    /**
+     * Processes all symbols (labels and variables) contained in the instructions of this assembly parser, and replaces
+     * all symbols in A-instructions with their respective memory addresses.
+     * 
+     * @param assemblyCode          the code to process
+     * @return a code with all symbols replaced with their respective line number references
+    */
+    public static String processSymbols(String assemblyCode) {
+        if(symbolTable == null) {
+            symbolTable = new SymbolTable();
+            symbolTable.initialize();
+        }
+        
+        final String[] lines = assemblyCode.split("\n");
+        
+        /** Process each line and store the line number for each return address label */
+        Stream.of(lines).forEach((line) -> {
+            boolean isLabel = line.startsWith("(") && line.endsWith(")");
+
+            if(!isLabel) {
+                instructionCounter++;
+            } else {
+                String label = line.replace("(", "").replace(")", "");
+                
+                if(!symbolTable.contains(label)) {
+                    symbolTable.addEntry(label, instructionCounter);
+                }
+            }
+        });
+
+        /** Next, replace all return address symbol with their actual values */
+        Stream.of(lines).forEach((line) -> {
+            boolean isAddressReference = line.startsWith("@");
+            
+            if(isAddressReference) {
+                boolean isVariable = false;
+                String value = line.substring(1);
+
+                /** In order to determine whether the value is a constant, try to decode an integer from
+                 * it. If the operation fails, then it is a variable.
+                 */
+                try {
+
+                    int constant = Integer.decode(String.valueOf(value));
+
+                } catch (NumberFormatException notANumber) {
+                    isVariable = true;
+                }
+
+                if(isVariable && !symbolTable.contains(value)) {
+                    symbolTable.addEntry(value, addressCounter++);
+                }
+            }
+        });
+        
+        StringBuilder builder = new StringBuilder();
+        Stream.of(lines).forEach((line) -> {
+            boolean isAddressPointer = line.startsWith("@");
+
+            if(isAddressPointer) {
+                String label = line.substring(1);
+
+                if(symbolTable.contains(label)) {
+                    builder.append(String.format("@%s\n", symbolTable.getAddress(label)));
+                } else {
+                    builder.append(String.format("%s\n", line));
+                }
+            } else {
+                builder.append(String.format("%s\n", line));
+            }
+        });
+        
+        return builder.toString();
     }
     
     
@@ -79,6 +165,7 @@ public final class VMParser implements Parser {
      * @param fileName          the name to set for the parser
      * @return a reference to the Parser instance
      */
+    @Override
     public Parser setFileName(String fileName) {
         this.fileName = fileName;
         return this;
@@ -113,6 +200,7 @@ public final class VMParser implements Parser {
      * 
      * @return the current function context for this parser
      */
+    @Override
     public String currentFunctionContext() {
         return contexts.peek();
     }
@@ -164,6 +252,7 @@ public final class VMParser implements Parser {
      */
     public static String bootstrapCode() {
         StringBuilder builder = new StringBuilder();
+        
         builder.append(initializeSegment("SP", 256));
 
         VMCommand initCommand = new CallCommand("call Sys.init 0");
@@ -179,31 +268,29 @@ public final class VMParser implements Parser {
      * 
      * @return the assembly code from the parsed VM commands
      */
+    @Override
     public String assemblyCode() {
         StringBuilder buffer = new StringBuilder();
 
         synchronized(commands) {
-            Iterator iterator = commands.iterator();
-            
-            while(iterator.hasNext()) {
-                VMCommand command = (VMCommand) iterator.next();
+            commands.stream().forEach((command) -> {
                 command.setFileName(fileName);
-                
                 String assemblyCode = command.toAssemblyCode();
                 
                 if(!assemblyCode.isEmpty()) {
+                    //buffer.append(String.format("// %s\n", command.getCommand()));
                     buffer.append(assemblyCode);
-                    
                     boolean isLast = (commands.indexOf(command) == commands.size() - 1);
                 
                     if(!isLast) {
                         buffer.append("\n");
                     }
                 }
-            }
+            });
         }
         
         return buffer.toString();
+
     }
     
 }

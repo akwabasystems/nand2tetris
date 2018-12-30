@@ -2,21 +2,20 @@
 package com.akwabasystems.vm;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 
-/**
- *
- * @author Rendezvous7
- */
-public class ProgramFlowTests extends TestCase {
+
+public class ProgramFlowTests {
     
-    public void testParsingContext() {
+    @Test
+    public void parsingContext() {
         Parser parser = new VMParser();
         assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("function Fibonacci 0");
-        assertEquals(parser.currentFunctionContext(), "Main");
+        assertEquals(parser.currentFunctionContext(), "Fibonacci");
         
         parser.parse("return");
         assertEquals(parser.currentFunctionContext(), "Main");
@@ -24,7 +23,7 @@ public class ProgramFlowTests extends TestCase {
         parser.parse("function Sys.init 0");
         parser.parse("push constant 4");
         parser.parse("call Main.Application 0");
-        assertEquals(parser.currentFunctionContext(), "Main.Application");
+        assertEquals(parser.currentFunctionContext(), "Sys.init");
         
         parser.parse("return");
         assertEquals(parser.currentFunctionContext(), "Main");
@@ -34,7 +33,8 @@ public class ProgramFlowTests extends TestCase {
     }
 
 
-    public void testLabel() {
+    @Test
+    public void label() {
         Parser parser = new VMParser();
         assertEquals(parser.currentFunctionContext(), "Main");
         
@@ -46,17 +46,30 @@ public class ProgramFlowTests extends TestCase {
         parser.parse("label InfiniteLoop");
         
         String[] parts = parser.assemblyCode().split("\n");
-        assertEquals(parts[parts.length - 1], "(Main$InfiniteLoop)");
+        assertEquals(parts[parts.length - 1], "(Sys.init$InfiniteLoop)");
         
         parser.parse("return");
         parser.parse("label Reset");
         
         parts = parser.assemblyCode().split("\n");
         assertEquals(parts[parts.length - 1], "(Main$Reset)");
+        
+        parser.parse("function Fibonacci-Series1 0");
+        parser.parse("label IF_TRUE");
+        
+        parts = parser.assemblyCode().split("\n");
+        assertEquals(parts[parts.length - 1], "(Fibonacci-Series1$IF_TRUE)");
+        
+        parser.parse("function Fibonacci-Series2 0");
+        parser.parse("label IF_TRUE");
+        
+        parts = parser.assemblyCode().split("\n");
+        assertEquals(parts[parts.length - 1], "(Fibonacci-Series2$IF_TRUE)");
     }
     
     
-    public void testGotoLabel() {
+    @Test
+    public void gotoLabel() {
         Parser parser = new VMParser();
         parser.parse("if-goto InfiniteLoop");
         String assemblyCode = parser.assemblyCode();

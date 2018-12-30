@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class CallCommand extends AbstractVMCommand {
     
-    private static final ConcurrentMap<String,Integer> registry = new ConcurrentHashMap<String,Integer>();
+    private static final ConcurrentMap<String,Integer> registry = new ConcurrentHashMap<>();
     
     
     /**
@@ -32,6 +32,7 @@ public final class CallCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         String functionName = getArgument1();
         String returnAddress = String.format("%s$return-address", getArgument1());

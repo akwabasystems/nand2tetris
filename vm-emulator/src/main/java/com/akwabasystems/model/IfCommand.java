@@ -23,6 +23,7 @@ public final class IfCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         StringBuilder builder = new StringBuilder();
 
