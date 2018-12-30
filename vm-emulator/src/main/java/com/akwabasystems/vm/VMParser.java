@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 
 /**
@@ -30,7 +31,10 @@ public final class VMParser implements Parser {
     private final List<VMCommand> commands = Collections.synchronizedList(new ArrayList<VMCommand>());
     private String fileName;
     private final Stack<String> contexts = new Stack<>();
-    
+    private static SymbolTable symbolTable;
+    private static int instructionCounter = 0;
+    private static int addressCounter = 16;
+
     
     /**
      * Default constructor. Initializes the function context to "Main".
@@ -76,6 +80,82 @@ public final class VMParser implements Parser {
 
             commands.add(currentCommand);
         }
+    }
+    
+    
+    /**
+     * Processes all symbols (labels and variables) contained in the instructions of this assembly parser, and replaces
+     * all symbols in A-instructions with their respective memory addresses.
+     * 
+     * @param assemblyCode          the code to process
+     * @return a code with all symbols replaced with their respective line number references
+    */
+    public static String processSymbols(String assemblyCode) {
+        if(symbolTable == null) {
+            symbolTable = new SymbolTable();
+            symbolTable.initialize();
+        }
+        
+        final String[] lines = assemblyCode.split("\n");
+        
+        /** Process each line and store the line number for each return address label */
+        Stream.of(lines).forEach((line) -> {
+            boolean isLabel = line.startsWith("(") && line.endsWith(")");
+
+            if(!isLabel) {
+                instructionCounter++;
+            } else {
+                String label = line.replace("(", "").replace(")", "");
+                
+                if(!symbolTable.contains(label)) {
+                    symbolTable.addEntry(label, instructionCounter);
+                }
+            }
+        });
+
+        /** Next, replace all return address symbol with their actual values */
+        Stream.of(lines).forEach((line) -> {
+            boolean isAddressReference = line.startsWith("@");
+            
+            if(isAddressReference) {
+                boolean isVariable = false;
+                String value = line.substring(1);
+
+                /** In order to determine whether the value is a constant, try to decode an integer from
+                 * it. If the operation fails, then it is a variable.
+                 */
+                try {
+
+                    int constant = Integer.decode(String.valueOf(value));
+
+                } catch (NumberFormatException notANumber) {
+                    isVariable = true;
+                }
+
+                if(isVariable && !symbolTable.contains(value)) {
+                    symbolTable.addEntry(value, addressCounter++);
+                }
+            }
+        });
+        
+        StringBuilder builder = new StringBuilder();
+        Stream.of(lines).forEach((line) -> {
+            boolean isAddressPointer = line.startsWith("@");
+
+            if(isAddressPointer) {
+                String label = line.substring(1);
+
+                if(symbolTable.contains(label)) {
+                    builder.append(String.format("@%s\n", symbolTable.getAddress(label)));
+                } else {
+                    builder.append(String.format("%s\n", line));
+                }
+            } else {
+                builder.append(String.format("%s\n", line));
+            }
+        });
+        
+        return builder.toString();
     }
     
     
@@ -172,6 +252,7 @@ public final class VMParser implements Parser {
      */
     public static String bootstrapCode() {
         StringBuilder builder = new StringBuilder();
+        
         builder.append(initializeSegment("SP", 256));
 
         VMCommand initCommand = new CallCommand("call Sys.init 0");
@@ -197,6 +278,7 @@ public final class VMParser implements Parser {
                 String assemblyCode = command.toAssemblyCode();
                 
                 if(!assemblyCode.isEmpty()) {
+                    //buffer.append(String.format("// %s\n", command.getCommand()));
                     buffer.append(assemblyCode);
                     boolean isLast = (commands.indexOf(command) == commands.size() - 1);
                 
@@ -208,6 +290,7 @@ public final class VMParser implements Parser {
         }
         
         return buffer.toString();
+
     }
     
 }

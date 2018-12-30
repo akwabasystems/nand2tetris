@@ -160,7 +160,7 @@ public enum CommandType {
         String commandName = syntax.split(" ")[0];
 
         for(CommandType type : values()) {
-            if(type.commandList().contains(commandName)) {
+            if(type.commandList().contains(commandName.toLowerCase())) {
                 return (VMCommand) type.command(syntax);
             }
         }

@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 public final class VMMain {
 
     private static boolean shouldBootstrap = true;
+    private static final String BOOTSTRAP_FLAG = "--no-bootstrap";
     
     private static final Function<File,Boolean> IsSysInitFile = (file) -> {
         return (file.getName().equalsIgnoreCase("Sys.vm") || 
@@ -62,10 +63,15 @@ public final class VMMain {
             return;
         }
 
-        if(args.length == 2) {
-            boolean hasNoBootstrapFlag = (args[0].equals("--no-bootstrap"));
+        if(args.length >= 2) {
+            boolean hasNoBootstrapFlag = Stream.of(args).anyMatch((arg) -> arg.equalsIgnoreCase(BOOTSTRAP_FLAG));
             shouldBootstrap = !hasNoBootstrapFlag;
-            inputFileArgument = args[1];
+            
+            inputFileArgument = Stream.of(args)
+                                       .filter((arg) -> !arg.equalsIgnoreCase(BOOTSTRAP_FLAG))
+                                       .findFirst()
+                                       .orElse(null);
+
         } else {
             inputFileArgument = args[0];
         }
@@ -167,10 +173,13 @@ public final class VMMain {
         }
 
         builder.append(assemblyCode);
-
+        
+        // Step 1 post-process all symbols used in return addresses
+        String processedCode = VMParser.processSymbols(builder.toString());
+        
         try {
 
-            writer.setFileName(outputFile).writeAssemblyCode(builder.toString());
+            writer.setFileName(outputFile).writeAssemblyCode(processedCode);
 
         } catch(IOException cannotRead) {
             System.out.printf("Couldn't access input or output files - Cause: %s\n", cannotRead.getMessage());
