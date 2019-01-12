@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 /**
  * An enumeration of the different jump fields in a C-instruction. Each constant has a method for returning its 
@@ -75,17 +77,12 @@ public enum Jump {
      * @return the enum constant whose name matches the given mnemonic
      */
     public static Jump fromMnemonic(String mnemonic) {
-        if(mnemonic == null) {
-            return Jump.NO_JUMP;
-        }
         
-        for(Jump jump : values()) {
-            if(jump.name().equals(mnemonic.toUpperCase())) {
-                return jump;
-            }
-        }
+        return Stream.of(values())
+                     .filter((jump) -> jump.name().equalsIgnoreCase(mnemonic))
+                     .findFirst()
+                     .orElse(NO_JUMP);
         
-        return Jump.NO_JUMP;
     }
     
     
@@ -96,17 +93,12 @@ public enum Jump {
      * @return the enum constant whose bit string matches the given bits
      */
     public static Jump fromBits(String bits) {
-        if(bits == null) {
-            return Jump.NO_JUMP;
-        }
         
-        for(Jump jump : values()) {
-            if(jump.toBitString().equals(bits)) {
-                return jump;
-            }
-        }
-        
-        return Jump.NO_JUMP;
+        return Stream.of(values())
+                     .filter((jump) -> jump.toBitString().equals(bits))
+                     .findFirst()
+                     .orElse(NO_JUMP);
+
     }
     
     
