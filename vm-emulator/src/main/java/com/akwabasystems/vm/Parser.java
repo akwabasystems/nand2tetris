@@ -41,4 +41,22 @@ public interface Parser {
      */
     String assemblyCode();
     
+    
+    /**
+     * Specifies whether debugging should be enabled for this parser
+     * 
+     * @param debugEnabled          a flag that specifies whether to enable debugging for this parser
+     * @return a reference to the Parser instance
+     */
+    VMParser setDebugEnabled(boolean debugEnabled);
+    
+    
+    /**
+     * Specifies whether this parser should output the bootstrapping code
+     * 
+     * @param bootstrapEnabled      a flag that specifies whether to output the bootstrapping code
+     * @return a reference to the Parser instance
+     */
+    VMParser shouldBootstrap(boolean bootstrapEnabled);
+    
 }

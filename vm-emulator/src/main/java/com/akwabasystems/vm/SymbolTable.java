@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class SymbolTable {
     
-    private ConcurrentMap<String,Integer> symbols = new ConcurrentHashMap<String,Integer>();
+    private final ConcurrentMap<String,Integer> symbols = new ConcurrentHashMap<String,Integer>();
     
     
     /**
@@ -67,8 +67,8 @@ public final class SymbolTable {
     public int getAddress(String symbol) {
         return symbols.containsKey(symbol)? symbols.get(symbol) : -1;
     }
-    
-    
+
+
     /**
      * Returns true if the symbol table contains the specified symbol; otherwise, returns false
      * 

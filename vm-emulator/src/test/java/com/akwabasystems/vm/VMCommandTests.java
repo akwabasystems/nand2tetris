@@ -12,13 +12,16 @@ import com.akwabasystems.model.LabelCommand;
 import com.akwabasystems.model.PopCommand;
 import com.akwabasystems.model.PushCommand;
 import com.akwabasystems.model.ReturnCommand;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class VMCommandTests extends TestCase {
+public class VMCommandTests {
     
     
-    public void testArithmeticCommand() {
+    @Test
+    public void arithmeticCommand() {
         VMCommand command = new ArithmeticCommand("add");
         
         assertNotNull(command);
@@ -28,7 +31,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testGotoCommand() {
+    @Test
+    public void gotoCommand() {
         VMCommand command = new GotoCommand("goto loop");
         
         assertNotNull(command);
@@ -38,7 +42,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testPushCommand() {
+    @Test
+    public void pushCommand() {
         VMCommand command = new PushCommand("push argument 1");
         
         assertNotNull(command);
@@ -48,7 +53,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testPopCommand() {
+    @Test
+    public void popCommand() {
         VMCommand command = new PopCommand("pop local 3");
         
         assertNotNull(command);
@@ -58,7 +64,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testIfCommand() {
+    @Test
+    public void ifCommand() {
         VMCommand command = new IfCommand("if-goto end");
         
         assertNotNull(command);
@@ -68,7 +75,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testLabelCommand() {
+    @Test
+    public void labelCommand() {
         VMCommand command = new LabelCommand("label loop");
         
         assertNotNull(command);
@@ -78,7 +86,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testFunctionCommand() {
+    @Test
+    public void functionCommand() {
         VMCommand command = new FunctionCommand("function mult 2");
         
         assertNotNull(command);
@@ -88,7 +97,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testCallCommand() {
+    @Test
+    public void callCommand() {
         VMCommand command = new CallCommand("call mult 2");
         
         assertNotNull(command);
@@ -98,7 +108,8 @@ public class VMCommandTests extends TestCase {
     }
     
     
-    public void testReturnCommand() {
+    @Test
+    public void returnCommand() {
         VMCommand command = new ReturnCommand("return");
         
         assertNotNull(command);

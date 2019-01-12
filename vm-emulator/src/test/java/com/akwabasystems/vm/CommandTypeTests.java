@@ -4,13 +4,16 @@ package com.akwabasystems.vm;
 
 import com.akwabasystems.model.CommandType;
 import com.akwabasystems.model.VMCommand;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class CommandTypeTests extends TestCase {
+public class CommandTypeTests {
     
     
-    public void testCommandsFromSyntax() {
+    @Test
+    public void commandsFromSyntax() {
         
         VMCommand command = CommandType.fromCommand("add");
 

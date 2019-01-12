@@ -2,20 +2,22 @@
 package com.akwabasystems.vm;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 
-/**
- *
- * @author Rendezvous7
- */
-public class FunctionCallTests extends TestCase {
+
+public class FunctionCallTests {
     
-    public void testFunctionDeclaration() {
+    @Test
+    public void functionDeclaration() {
         Parser parser = new VMParser();
+        assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("function Increment 1");
-        assertEquals(parser.currentFunctionContext(), "Main");
+        assertEquals(parser.currentFunctionContext(), "Increment");
         
         StringBuilder expectedCode = new StringBuilder();
         expectedCode.append("(Increment)\n")
@@ -28,13 +30,21 @@ public class FunctionCallTests extends TestCase {
                .append("M=M+1");
         assertTrue(parser.assemblyCode().contains(expectedCode.toString()));
 
+        parser.parse("return\n");
+        assertEquals(parser.currentFunctionContext(), "Main");
+        
     }
 
     
-    public void testFunctionCall() {
+    @Test
+    public void functionCall() {
         Parser parser = new VMParser();
         
+        assertEquals(parser.currentFunctionContext(), "Main");
+        
         parser.parse("call Sys.init 0");
+        assertEquals(parser.currentFunctionContext(), "Main");
+        
         parser.parse("function Sys.init 0");
         assertEquals(parser.currentFunctionContext(), "Sys.init");
         
@@ -44,12 +54,12 @@ public class FunctionCallTests extends TestCase {
         parser.parse("return\n");
         assertEquals(parser.currentFunctionContext(), "Main");
         
-        parser.parse("call Fibonacci 1\n");
-        parser.parse("call Fibonacci 1\n");
-        assertEquals(parser.currentFunctionContext(), "Fibonacci");
+        parser.parse("call Fibonacci-1 1\n");
+        parser.parse("call Fibonacci-2 1\n");
+        assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("return\n");
-        assertEquals(parser.currentFunctionContext(), "Fibonacci");
+        assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("return\n");
         assertEquals(parser.currentFunctionContext(), "Main");

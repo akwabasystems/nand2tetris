@@ -67,5 +67,13 @@ public interface VMCommand {
      * @param context          the context to set for this command
      */
     void setContext(String context);
+    
+    
+    /**
+     * Returns the context for this command
+     * 
+     * @return the context for this command
+     */
+    String getContext();
 
 }

@@ -25,6 +25,7 @@ public final class VMCodeWriter implements CodeWriter {
      * @param fileName          the name to set for the code writer
      * @return a reference to the CodeWriter instance
      */
+    @Override
     public CodeWriter setFileName(String fileName) {
         this.fileName = fileName;
         return this;
@@ -38,6 +39,7 @@ public final class VMCodeWriter implements CodeWriter {
      * @return a reference to the CodeWriter instance
      * @throws IOException if the file cannot be written
      */
+    @Override
     public CodeWriter writeAssemblyCode(String code) throws IOException {
         File outputFile = new File(fileName);
         
@@ -60,6 +62,7 @@ public final class VMCodeWriter implements CodeWriter {
     /**
      * Closes the output stream for this code writer instance
      */
+    @Override
     public void close() {
         if(writer != null) {
             
@@ -68,7 +71,7 @@ public final class VMCodeWriter implements CodeWriter {
                 writer.close();
                 
             } catch(IOException notClosed) {
-                System.out.printf("Couldn't close outputFile - Cause: %s\n", notClosed.getMessage());
+                System.out.printf("Couldn't close output file - Cause: %s\n", notClosed.getMessage());
             }
         }
     }
