@@ -113,5 +113,32 @@ public class ArithmeticCommandTests {
         
         assertEquals(assemblyCode, expectedCode.toString());
     }
+    
+    
+    @Test
+    public void lessThanCommand() {
+        VMCommand command = CommandType.fromCommand("lt");
+        assertNotNull(command);
+        
+        String assemblyCode = command.toAssemblyCode();
+        assertNotNull(assemblyCode);
+    }
 
+    
+    @Test
+    public void greaterThanCommand() {
+        VMCommand command = CommandType.fromCommand("gt");
+        assertNotNull(command);
+        
+        String assemblyCode = command.toAssemblyCode();
+        assertNotNull(assemblyCode);
+    }
+    
+    
+    @Test
+    public void equalCommand() {
+        VMCommand command = CommandType.fromCommand("eq");
+        assertNotNull(command);
+    }
+    
 }

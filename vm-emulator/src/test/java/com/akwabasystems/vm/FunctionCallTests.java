@@ -17,7 +17,7 @@ public class FunctionCallTests {
         assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("function Increment 1");
-        assertEquals(parser.currentFunctionContext(), "Increment");
+        assertEquals(parser.currentFunctionContext(), "Main");
         
         StringBuilder expectedCode = new StringBuilder();
         expectedCode.append("(Increment)\n")
@@ -43,7 +43,7 @@ public class FunctionCallTests {
         assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("call Sys.init 0");
-        assertEquals(parser.currentFunctionContext(), "Main");
+        assertEquals(parser.currentFunctionContext(), "Sys.init");
         
         parser.parse("function Sys.init 0");
         assertEquals(parser.currentFunctionContext(), "Sys.init");
@@ -56,10 +56,10 @@ public class FunctionCallTests {
         
         parser.parse("call Fibonacci-1 1\n");
         parser.parse("call Fibonacci-2 1\n");
-        assertEquals(parser.currentFunctionContext(), "Main");
+        assertEquals(parser.currentFunctionContext(), "Fibonacci-2");
         
         parser.parse("return\n");
-        assertEquals(parser.currentFunctionContext(), "Main");
+        assertEquals(parser.currentFunctionContext(), "Fibonacci-1");
         
         parser.parse("return\n");
         assertEquals(parser.currentFunctionContext(), "Main");

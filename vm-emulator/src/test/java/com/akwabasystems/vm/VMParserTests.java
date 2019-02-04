@@ -230,7 +230,7 @@ public class VMParserTests {
         assertNotNull(bootstrapCode);
         
         StringBuilder codeFragment = new StringBuilder();
-        codeFragment.append("@256\n")
+        codeFragment.append("@261\n")
                     .append("D=A\n")
                     .append("@SP\n")
                     .append("M=D\n");
