@@ -15,7 +15,7 @@ public class ProgramFlowTests {
         assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("function Fibonacci 0");
-        assertEquals(parser.currentFunctionContext(), "Fibonacci");
+        assertEquals(parser.currentFunctionContext(), "Main");
         
         parser.parse("return");
         assertEquals(parser.currentFunctionContext(), "Main");
@@ -23,7 +23,7 @@ public class ProgramFlowTests {
         parser.parse("function Sys.init 0");
         parser.parse("push constant 4");
         parser.parse("call Main.Application 0");
-        assertEquals(parser.currentFunctionContext(), "Sys.init");
+        assertEquals(parser.currentFunctionContext(), "Main.Application");
         
         parser.parse("return");
         assertEquals(parser.currentFunctionContext(), "Main");
@@ -46,7 +46,7 @@ public class ProgramFlowTests {
         parser.parse("label InfiniteLoop");
         
         String[] parts = parser.assemblyCode().split("\n");
-        assertEquals(parts[parts.length - 1], "(Sys.init$InfiniteLoop)");
+        assertEquals(parts[parts.length - 1], "(Main$InfiniteLoop)");
         
         parser.parse("return");
         parser.parse("label Reset");
@@ -58,13 +58,13 @@ public class ProgramFlowTests {
         parser.parse("label IF_TRUE");
         
         parts = parser.assemblyCode().split("\n");
-        assertEquals(parts[parts.length - 1], "(Fibonacci-Series1$IF_TRUE)");
+        assertEquals(parts[parts.length - 1], "(Main$IF_TRUE)");
         
         parser.parse("function Fibonacci-Series2 0");
         parser.parse("label IF_TRUE");
         
         parts = parser.assemblyCode().split("\n");
-        assertEquals(parts[parts.length - 1], "(Fibonacci-Series2$IF_TRUE)");
+        assertEquals(parts[parts.length - 1], "(Main$IF_TRUE)");
     }
     
     
