@@ -24,6 +24,7 @@ public final class GotoCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("@%s$%s\n", getContext(), getArgument1()))

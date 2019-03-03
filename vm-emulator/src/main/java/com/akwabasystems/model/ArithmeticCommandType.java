@@ -75,26 +75,26 @@ public enum ArithmeticCommandType {
             StringBuilder buffer = new StringBuilder();
             Long increment = counter.incrementAndGet();
 
-            buffer.append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M\n")
-                  .append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M-D\n")
-                  .append(String.format("    @IF_EQUAL_TO%s\n", increment))
-                  .append("    D;JEQ\n")
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=0\n")
-                  .append(String.format("    @IF_EQUAL_TO_END%s\n", increment))
-                  .append("    0;JMP\n")
+            buffer.append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M\n")
+                  .append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M-D\n")
+                  .append(String.format("@IF_EQUAL_TO%s\n", increment))
+                  .append("D;JEQ\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=0\n")
+                  .append(String.format("@IF_EQUAL_TO_END%s\n", increment))
+                  .append("0;JMP\n")
                   .append(String.format("(IF_EQUAL_TO%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=-1\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=-1\n")
                   .append(String.format("(IF_EQUAL_TO_END%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    M=M+1");
+                  .append("@SP\n")
+                  .append("M=M+1");
 
             return buffer.toString();   
         }
@@ -109,26 +109,26 @@ public enum ArithmeticCommandType {
             StringBuilder buffer = new StringBuilder();
             Long increment = counter.incrementAndGet();
             
-            buffer.append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M\n")
-                  .append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M-D\n")
-                  .append(String.format("    @IF_GREATER_THAN%s\n", increment))
-                  .append("    D;JGT\n")
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=0\n")
-                  .append(String.format("    @IF_GREATER_THAN_END%s\n", increment))
-                  .append("    0;JMP\n")
+            buffer.append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M\n")
+                  .append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M-D\n")
+                  .append(String.format("@IF_GREATER_THAN%s\n", increment))
+                  .append("D;JGT\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=0\n")
+                  .append(String.format("@IF_GREATER_THAN_END%s\n", increment))
+                  .append("0;JMP\n")
                   .append(String.format("(IF_GREATER_THAN%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=-1\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=-1\n")
                   .append(String.format("(IF_GREATER_THAN_END%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    M=M+1");
+                  .append("@SP\n")
+                  .append("M=M+1");
 
             return buffer.toString();
         }
@@ -143,26 +143,26 @@ public enum ArithmeticCommandType {
             StringBuilder buffer = new StringBuilder();
             Long increment = counter.incrementAndGet();
             
-            buffer.append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M\n")
-                  .append("    @SP\n")
-                  .append("    AM=M-1\n")
-                  .append("    D=M-D\n")
-                  .append(String.format("    @IF_LESS_THAN%s\n", increment))
-                  .append("    D;JLT\n")
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=0\n")
-                  .append(String.format("    @IF_LESS_THAN_END%s\n", increment))
-                  .append("    0;JMP\n")
+            buffer.append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M\n")
+                  .append("@SP\n")
+                  .append("AM=M-1\n")
+                  .append("D=M-D\n")
+                  .append(String.format("@IF_LESS_THAN%s\n", increment))
+                  .append("D;JLT\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=0\n")
+                  .append(String.format("@IF_LESS_THAN_END%s\n", increment))
+                  .append("0;JMP\n")
                   .append(String.format("(IF_LESS_THAN%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    A=M\n")
-                  .append("    M=-1\n")
+                  .append("@SP\n")
+                  .append("A=M\n")
+                  .append("M=-1\n")
                   .append(String.format("(IF_LESS_THAN_END%s)\n", increment))
-                  .append("    @SP\n")
-                  .append("    M=M+1");
+                  .append("@SP\n")
+                  .append("M=M+1");
 
             return buffer.toString();
         }
@@ -259,7 +259,7 @@ public enum ArithmeticCommandType {
         String[] parts = syntax.split(" ");
 
         for(ArithmeticCommandType type : values()) {
-            if(type.name().toLowerCase().equals(parts[0])) {
+            if(type.name().toLowerCase().equals(parts[0].toLowerCase())) {
                 return type;
             }
         }

@@ -4,13 +4,16 @@ package com.akwabasystems.vm;
 
 import com.akwabasystems.model.CommandType;
 import com.akwabasystems.model.VMCommand;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 
-public class CommandTests extends TestCase {
+public class CommandTests {
     
     
-    public void testPushConstant() {
+    @Test
+    public void pushConstant() {
         VMCommand command = CommandType.fromCommand("push constant 7");
         assertNotNull(command);
         
@@ -46,7 +49,8 @@ public class CommandTests extends TestCase {
     }
 
     
-    public void testAddCommand() {
+    @Test
+    public void addCommand() {
         VMCommand command = CommandType.fromCommand("add");
         assertNotNull(command);
         
@@ -67,7 +71,8 @@ public class CommandTests extends TestCase {
     }
 
 
-    public void testSubCommand() {
+    @Test
+    public void subCommand() {
         VMCommand command = CommandType.fromCommand("sub");
         assertNotNull(command);
         
@@ -88,7 +93,8 @@ public class CommandTests extends TestCase {
     }
 
     
-    public void testAndCommand() {
+    @Test
+    public void andCommand() {
         VMCommand command = CommandType.fromCommand("and");
         assertNotNull(command);
         
@@ -109,7 +115,8 @@ public class CommandTests extends TestCase {
     }
     
     
-    public void testPushLocalCommand() {
+    @Test
+    public void pushLocalCommand() {
         VMCommand command = CommandType.fromCommand("push local 1");
         assertNotNull(command);
         
@@ -132,7 +139,8 @@ public class CommandTests extends TestCase {
     }
 
     
-    public void testPopLocalCommand() {
+    @Test
+    public void popLocalCommand() {
         VMCommand command = CommandType.fromCommand("pop local 7");
         assertNotNull(command);
         
@@ -157,7 +165,8 @@ public class CommandTests extends TestCase {
     }
     
     
-    public void testPushPointerCommand() {
+    @Test
+    public void pushPointerCommand() {
         VMCommand command = CommandType.fromCommand("push pointer 0");
         assertNotNull(command);
         
@@ -180,7 +189,8 @@ public class CommandTests extends TestCase {
     }
 
     
-    public void testPopPointerCommand() {
+    @Test
+    public void popPointerCommand() {
         VMCommand command = CommandType.fromCommand("pop pointer 1");
         assertNotNull(command);
         
@@ -205,7 +215,8 @@ public class CommandTests extends TestCase {
     }
     
     
-    public void testPushStaticCommand() {
+    @Test
+    public void pushStaticCommand() {
         VMCommand command = CommandType.fromCommand("push static 3");
         command.setFileName("Commands");
         assertNotNull(command);
@@ -226,7 +237,8 @@ public class CommandTests extends TestCase {
     }
     
     
-    public void testPopStaticCommand() {
+    @Test
+    public void popStaticCommand() {
         VMCommand command = CommandType.fromCommand("pop static 3");
         command.setFileName("Commands");
         assertNotNull(command);

@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 /**
  * An enumeration of the different computation commands of a C-instruction that use the memory (M).
@@ -139,17 +141,12 @@ public enum ComputeM {
      * @return the enum constant whose name matches the given mnemonic
      */
     public static ComputeM fromMnemonic(String mnemonic) {
-        if(mnemonic == null) {
-            return null;
-        }
         
-        for(ComputeM compute : values()) {
-            if(compute.actualSyntax().equals(mnemonic.toUpperCase())) {
-                return compute;
-            }
-        }
-        
-        return null;
+        return Stream.of(values())
+                    .filter((compute) -> compute.actualSyntax().equalsIgnoreCase(mnemonic))
+                    .findFirst()
+                    .orElse(null);
+
     }
     
     
@@ -160,17 +157,12 @@ public enum ComputeM {
      * @return the enum constant whose bit string matches the given bits
      */
     public static ComputeM fromBits(String bits) {
-        if(bits == null) {
-            return null;
-        }
         
-        for(ComputeM compute : values()) {
-            if(compute.toBitString().equals(bits)) {
-                return compute;
-            }
-        }
-        
-        return null;
+        return Stream.of(values())
+                    .filter((compute) -> compute.toBitString().equals(bits))
+                    .findFirst()
+                    .orElse(null);
+
     }
     
     

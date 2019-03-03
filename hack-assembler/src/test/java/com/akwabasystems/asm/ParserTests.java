@@ -2,13 +2,17 @@
 package com.akwabasystems.asm;
 
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertFalse;
+import org.junit.Test;
 
 
-public class ParserTests extends TestCase {
+public class ParserTests {
     
     
-    public void testBasicParser() {
+    @Test
+    public void basicParser() {
         Parser parser = new AssemblyParser();
         
         parser.parse("// Adds 1 + ... + 100");
@@ -37,7 +41,8 @@ public class ParserTests extends TestCase {
     }
     
     
-    public void testAddition() {
+    @Test
+    public void addition() {
         Parser parser = new AssemblyParser();
         
         parser.parse("@2");
@@ -62,7 +67,8 @@ public class ParserTests extends TestCase {
     }
 
     
-    public void testMax() {
+    @Test
+    public void max() {
         Parser parser = new AssemblyParser();
         
         parser.parse("@0");
@@ -108,7 +114,8 @@ public class ParserTests extends TestCase {
     }
     
     
-    public void testRect() {
+    @Test
+    public void rect() {
         Parser parser = new AssemblyParser();
         
         parser.parse("@0");

@@ -2,13 +2,11 @@
 package com.akwabasystems.vm;
 
 
-import com.akwabasystems.model.CallCommand;
 import com.akwabasystems.model.CommandType;
 import com.akwabasystems.model.VMCommand;
 import com.akwabasystems.utils.VMUtils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -28,10 +26,12 @@ import java.util.Stack;
  */
 public final class VMParser implements Parser {
     
-    private final List<VMCommand> commands = Collections.synchronizedList(new ArrayList<VMCommand>());
+    private final List<VMCommand> commands = Collections.synchronizedList(new ArrayList<>());
     private String fileName;
-    private final Stack<String> contexts = new Stack<String>();
-    
+    private final Stack<String> contexts = new Stack<>();
+    private static boolean debugEnabled = false;
+    private static boolean bootstrapEnabled = true;
+
     
     /**
      * Default constructor. Initializes the function context to "Main".
@@ -41,29 +41,30 @@ public final class VMParser implements Parser {
         contexts.add("Main");
     }
 
-    
+
     /**
      * Parses the given command and adds its corresponding VMCommand object to the command list. It sets the context
-     * of each command to the approriate one when entering and leaving a function.
-     * 
+     * of each command to the appropriate one when entering and leaving a function.
+     *
      * @param command       the command to parse
      */
+    @Override
     public void parse(String command) {
         String syntax = VMUtils.stripComments(command);
         boolean isComment = syntax.startsWith("//") || (syntax.startsWith("/*") && syntax.endsWith("*/"));
         boolean isValidCommand = (!syntax.isEmpty() && !isComment);
         VMCommand currentCommand = null;
-        
+
         if(isValidCommand) {
             currentCommand = CommandType.fromCommand(command);
-            
-            /** Set the current context to the parsed function */
-            boolean isFunction = (currentCommand.getType() == CommandType.C_FUNCTION);
-            boolean isReturn = (currentCommand.getType() == CommandType.C_RETURN);
 
-            if(isFunction) {
+            /** Set the current context to the parsed function */
+            boolean isFunctionCall = (currentCommand.getType() == CommandType.C_CALL);
+            boolean isFunctionReturn = (currentCommand.getType() == CommandType.C_RETURN);
+            
+            if(isFunctionCall) {
                 onFunctionEnter(currentCommand.getArgument1());
-            } else if(isReturn) {
+            } else if(isFunctionReturn) {
                 onFunctionExit();
             }
 
@@ -79,6 +80,7 @@ public final class VMParser implements Parser {
      * @param fileName          the name to set for the parser
      * @return a reference to the Parser instance
      */
+    @Override
     public Parser setFileName(String fileName) {
         this.fileName = fileName;
         return this;
@@ -113,26 +115,80 @@ public final class VMParser implements Parser {
      * 
      * @return the current function context for this parser
      */
+    @Override
     public String currentFunctionContext() {
         return contexts.peek();
     }
     
     
     /**
-     * Initializes the different memory segments prior to executing the program instructions. For instance, the 
-     * stack pointer is set to memory location 256, with the LCL, ARG, THIS, and THAT segments retaining their 
-     * default values.
+     * Specifies whether debugging should be enabled for this parser
      * 
-     * @return the assembly code for initializing the different memory segments.
+     * @param isDebugEnabled        a flag that specifies whether to enable debugging for this parser
+     * @return a reference to the Parser instance
      */
-    public static String initializeStackPointer() {
+    @Override
+    public VMParser setDebugEnabled(boolean isDebugEnabled) {
+        debugEnabled = isDebugEnabled;
+        return this;
+    }
+
+
+    /**
+     * Returns true if debugging is enabled for this parser. Otherwise, returns false
+     *
+     * @return true if debugging is enabled for this parser. Otherwise, returns false
+     */
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+
+    /**
+     * Specifies whether this parser should output the bootstrapping code
+     *
+     * @param isBootstrapEnabled      a flag that specifies whether to output the bootstrapping code
+     * @return a reference to the Parser instance
+     */
+    @Override
+    public VMParser shouldBootstrap(boolean isBootstrapEnabled) {
+        bootstrapEnabled = isBootstrapEnabled;
+        return this;
+    }
+
+
+    /**
+     * Returns true if this parser outputs the bootstrapping code; otherwise, returns false
+     *
+     * @return true if this parser outputs the bootstrapping code; otherwise, returns false
+     */
+    public boolean isBootstrapEnabled() {
+        return bootstrapEnabled;
+    }
+
+
+    /**
+     * Returns the assembly code for bootstrapping the application. The logic initializes the main segments
+     * (SP, LCL, ARG, THIS, THAT) to sensible defaults; it then invokes the system init function (call Sys.init).
+     * 
+     * @return the assembly code for bootstrapping the application
+     */
+    public static String bootstrapCode() {
         StringBuilder builder = new StringBuilder();
         
-        builder.append("@256\n")
-               .append("D=A\n")
-               .append("@SP\n")
-               .append("M=D\n");
+        if(debugEnabled) {
+            builder.append("// Bootstrap\n");
+        }
         
+        builder.append(initializeSegment("SP", 261))
+               .append(initializeSegment("LCL", 261))
+               .append(initializeSegment("ARG", 256))
+               .append(initializeSegment("THIS", 0))
+               .append(initializeSegment("THAT", 0));
+
+        builder.append("@Sys.init\n")
+               .append("0;JMP\n");
+
         return builder.toString();
     }
 
@@ -157,53 +213,36 @@ public final class VMParser implements Parser {
     
     
     /**
-     * Returns the assembly code for bootstrapping the application. The bootstrap code consists of initializing the
-     * value of the stack pointer (SP=256) and invoking the system init function (call Sys.init).
-     * 
-     * @return the assembly code for bootstrapping the application
-     */
-    public static String bootstrapCode() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(initializeSegment("SP", 256));
-
-        VMCommand initCommand = new CallCommand("call Sys.init 0");
-        builder.append(initCommand.toAssemblyCode())
-               .append("\n");
-
-        return builder.toString();
-    }
-
-    
-    /**
      * Returns the assembly code from the parsed VM commands
      * 
      * @return the assembly code from the parsed VM commands
      */
+    @Override
     public String assemblyCode() {
         StringBuilder buffer = new StringBuilder();
 
         synchronized(commands) {
-            Iterator iterator = commands.iterator();
-            
-            while(iterator.hasNext()) {
-                VMCommand command = (VMCommand) iterator.next();
+            commands.stream().forEach((command) -> {
                 command.setFileName(fileName);
-                
                 String assemblyCode = command.toAssemblyCode();
-                
+
                 if(!assemblyCode.isEmpty()) {
+                    if(this.isDebugEnabled()) {
+                        buffer.append(String.format("// %s\n", command.getCommand()));
+                    }
+
                     buffer.append(assemblyCode);
-                    
                     boolean isLast = (commands.indexOf(command) == commands.size() - 1);
-                
+
                     if(!isLast) {
                         buffer.append("\n");
                     }
                 }
-            }
+            });
         }
-        
+
         return buffer.toString();
+
     }
-    
+
 }

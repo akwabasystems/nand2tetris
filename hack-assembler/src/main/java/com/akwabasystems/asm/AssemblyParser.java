@@ -4,7 +4,6 @@ package com.akwabasystems.asm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -43,6 +42,7 @@ public final class AssemblyParser implements Parser {
      * 
      * @param command       the command to parse
      */
+    @Override
     public void parse(String command) {
         String syntax = command.replaceAll("\\/\\/[^\n\r]*", "").trim();
         
@@ -65,19 +65,13 @@ public final class AssemblyParser implements Parser {
      * 
      * @return the binary code for the program that was parsed
      */
+    @Override
     public String binaryCode() {
-        initializeSymbolTable();
-        processSymbols();
-        return generateBinaryCode();
-    }
-    
-    
-    /**
-     * Initializes the symbol table for this assembly parser
-     */
-    private void initializeSymbolTable() {
         symbolTable = new SymbolTable();
         symbolTable.initialize();
+        
+        processSymbols();
+        return generateBinaryCode();
     }
     
     
@@ -87,28 +81,24 @@ public final class AssemblyParser implements Parser {
     */
     private void processSymbols() {
         synchronized(instructions) {
-            Iterator iterator = instructions.iterator();
 
-            while(iterator.hasNext()) {
-                Instruction instruction = (Instruction) iterator.next();
-                
+            instructions.stream().forEach((instruction) -> {
                 if(instruction.isAInstruction() || instruction.isCInstruction()) {
                     instructionCounter++;
                 } else if(instruction.isLCommand()) {
                     String label = instruction.getCommand().replace("(", "").replace(")", "");
                     symbolTable.addEntry(label, instructionCounter);
                 }
-            }
-            
-            iterator = instructions.iterator();
+            });
 
-            while(iterator.hasNext()) {
-                Instruction instruction = (Instruction) iterator.next();
-                    
+            instructions.stream().forEach((instruction) -> {
                 if(instruction.isAInstruction()) {
                     boolean isVariable = false;
                     String bits = instruction.getCommand().substring(1);
 
+                    /** In order to determine whether the value is a constant, try to decode an integer from
+                     * it. If the operation fails, then it is a variable rather than a constant.
+                     */
                     try {
 
                         int constant = Integer.decode(String.valueOf(bits));
@@ -121,10 +111,10 @@ public final class AssemblyParser implements Parser {
                         symbolTable.addEntry(bits, addressCounter++);
                     }
                 }
-            }
+            });
             
             /** Revisits all A-instructions and resolve their symbol values */
-            for(Instruction instruction : instructions) {
+            instructions.stream().forEach((instruction) -> {
                 if(instruction.isAInstruction()) {
                     String bits = instruction.getCommand().substring(1);
                     
@@ -133,7 +123,7 @@ public final class AssemblyParser implements Parser {
                         instruction.setCommand(String.format("@%s", address));
                     }
                 }
-            }
+            });
         }
     }
     
@@ -147,10 +137,8 @@ public final class AssemblyParser implements Parser {
         StringBuilder buffer = new StringBuilder();
 
         synchronized(instructions) {
-            Iterator iterator = instructions.iterator();
             
-            while(iterator.hasNext()) {
-                Instruction instruction = (Instruction) iterator.next();
+            instructions.stream().forEach((instruction) -> {
                 String binaryCode = instruction.binaryCode();
                 
                 if(!binaryCode.isEmpty()) {
@@ -162,8 +150,7 @@ public final class AssemblyParser implements Parser {
                         buffer.append("\n");
                     }
                 }
-                
-            }
+            });
         }
         
         return buffer.toString();

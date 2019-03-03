@@ -2,16 +2,17 @@
 package com.akwabasystems.vm;
 
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 
-/**
- *
- * @author Rendezvous7
- */
-public class VMParserTests extends TestCase {
+public class VMParserTests {
     
-    public void testAddCommandParsing() {
+    
+    @Test
+    public void addCommandParsing() {
         Parser parser = new VMParser();
             
         parser.parse("// This file contains comments");
@@ -53,7 +54,8 @@ public class VMParserTests extends TestCase {
     }
     
     
-    public void testSubCommandParsing() {
+    @Test
+    public void subCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 30");
@@ -91,7 +93,8 @@ public class VMParserTests extends TestCase {
     }
 
     
-    public void testAndCommandParsing() {
+    @Test
+    public void andCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 1");
@@ -129,7 +132,8 @@ public class VMParserTests extends TestCase {
     }
     
     
-    public void testIfEqualCommandParsing() {
+    @Test
+    public void ifEqualCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 17");
@@ -151,7 +155,8 @@ public class VMParserTests extends TestCase {
     }
     
     
-    public void testIfGreaterThanCommandParsing() {
+    @Test
+    public void ifGreaterThanCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 32767");
@@ -167,7 +172,8 @@ public class VMParserTests extends TestCase {
     }
     
     
-    public void testIfLessThanCommandParsing() {
+    @Test
+    public void ifLessThanCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 32766");
@@ -183,7 +189,8 @@ public class VMParserTests extends TestCase {
     }
     
     
-    public void testPopCommandParsing() {
+    @Test
+    public void popCommandParsing() {
         Parser parser = new VMParser();
 
         parser.parse("push constant 21");
@@ -217,7 +224,8 @@ public class VMParserTests extends TestCase {
     }
 
     
-    public void testBootstrapCode() {
+    @Test
+    public void bootstrapCode() {
         String bootstrapCode = VMParser.bootstrapCode();
         assertNotNull(bootstrapCode);
         
@@ -233,4 +241,5 @@ public class VMParserTests extends TestCase {
                     .append("0;JMP");
         assertTrue(bootstrapCode.contains(codeFragment.toString()));
     }
+
 }

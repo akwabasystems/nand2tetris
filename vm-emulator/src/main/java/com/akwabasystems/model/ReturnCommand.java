@@ -26,6 +26,7 @@ public final class ReturnCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         StringBuilder builder = new StringBuilder();
 

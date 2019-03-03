@@ -23,6 +23,7 @@ public final class PushCommand extends AbstractVMCommand {
      * 
      * @return the assembly code for this command
      */
+    @Override
     public String toAssemblyCode() {
         Segment segment = Segment.fromArgument(getArgument1());
         boolean isStaticSegment = (segment == Segment.STATIC);
