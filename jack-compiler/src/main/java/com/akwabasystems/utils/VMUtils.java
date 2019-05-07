@@ -37,4 +37,24 @@ public class VMUtils {
         return (parts[parts.length - 1].equals(extension));
     }
 
+    
+    /**
+     * Returns true if the given text can be parsed as a decimal integer; otherwise, returns false
+     * 
+     * @param text      the text to parse
+     * @return true if the given text can be parsed as a decimal integer; otherwise, returns false
+     */
+    public static boolean isNumber(String text) {
+        boolean result = false;
+        
+        try {
+            
+            Integer.parseInt(text);
+            result = true;
+            
+        } catch(NumberFormatException exception) {
+        }
+        
+        return result;
+    }
 }

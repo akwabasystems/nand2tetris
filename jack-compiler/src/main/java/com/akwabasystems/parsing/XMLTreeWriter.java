@@ -13,7 +13,7 @@ import java.io.IOException;
  * destination file to exist, and to have an extension that matches its content type. However, as a safety measure, it 
  * still checks for the existence of the file, and creates it accordingly. 
  */
-public final class JackCodeWriter implements CodeWriter {
+public final class XMLTreeWriter implements CodeWriter {
 
 
     /**
@@ -22,6 +22,7 @@ public final class JackCodeWriter implements CodeWriter {
      * @param code              the code to write
      * @param fileName          the name of the file to which to write the code
      */
+    @Override
     public void writeToFile(String code, String fileName) {
 
         try {

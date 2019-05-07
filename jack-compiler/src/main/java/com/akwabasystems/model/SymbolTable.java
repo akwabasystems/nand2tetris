@@ -15,7 +15,6 @@ public class SymbolTable {
     public void startClass(String name) {
         classScope = new ClassScope(name);
         currentScope = classScope;
-        System.out.printf("\n>>> SymbolTable: started class scope: %s\n", currentScope);
     }
     
     
@@ -23,8 +22,12 @@ public class SymbolTable {
         subroutineScope = new SubroutineScope(name);
         currentScope = subroutineScope;
         System.out.printf("\n>>> SymbolTable: started subroutine scope: %s\n", currentScope);
+        
+        if (classScope != null) {
+            subroutineScope.setParentScope(classScope);
+        }
     }
-
+    
 
     public void define(String name, String type, IdentifierKind kind) {
         boolean hasClassScope = (kind == IdentifierKind.STATIC || kind == IdentifierKind.FIELD);
@@ -35,7 +38,7 @@ public class SymbolTable {
             subroutineScope.define(name, type, kind);
         }
     }
-    
+
 
     public int varCount(IdentifierKind kind) {
         return currentScope.varCount(kind);
@@ -55,5 +58,26 @@ public class SymbolTable {
     public int IndexOf(String name) {
         return currentScope.indexOf(name);
     }
+    
+    
+    public Scope currentClassScope() {
+        return classScope;
+    }
+    
+    
+    public Scope currentSubroutineScope() {
+        return subroutineScope;
+    }
 
+    
+    public void describe() {
+        if (classScope != null) {
+            System.out.printf("%s\n", classScope.describe());
+        }
+        
+        if (subroutineScope != null) {
+            System.out.printf("%s\n", subroutineScope.describe());
+        }
+    }
+    
 }

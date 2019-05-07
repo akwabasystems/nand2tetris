@@ -137,7 +137,7 @@ public final class JackAnalyzer implements Analyzer {
                     break;
                     
                 default:
-                    System.out.println("Handling default case...");
+                    System.out.println("Handling default case: CODE_GEN...");
                     writeGeneratedCode(input.toString(), file);
                     break;
                 
@@ -163,7 +163,7 @@ public final class JackAnalyzer implements Analyzer {
         String outputFileName = String.format("%sT.xml", parts[0]);
         String outputFilePath = file.getAbsolutePath().replace(file.getName(), outputFileName);
 
-        CodeWriter writer = new JackCodeWriter();
+        CodeWriter writer = new XMLTreeWriter();
         writer.writeToFile(XMLOutput, outputFilePath);
     }
     
@@ -176,14 +176,14 @@ public final class JackAnalyzer implements Analyzer {
      */
     private void writeXMLTree(String input, File file) {
         Tokenizer tokenizer = new JackTokenizer(input);
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
 
         String[] parts = StringUtils.split(file.getName(), ".");
         String outputFileName = String.format("%s.xml", parts[0]);
         String outputFilePath = file.getAbsolutePath().replace(file.getName(), outputFileName);
 
-        CodeWriter writer = new JackCodeWriter();
+        CodeWriter writer = new XMLTreeWriter();
         writer.writeToFile(compiler.toXML(), outputFilePath);
     }
     
@@ -197,15 +197,17 @@ public final class JackAnalyzer implements Analyzer {
     private void writeGeneratedCode(String input, File file) {
         System.out.println("Writing generated code...");
         Tokenizer tokenizer = new JackTokenizer(input);
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        
+        String[] parts = StringUtils.split(file.getName(), ".");
+        String outputFileName = String.format("%s.vm", parts[0]);
+        String outputFilePath = file.getAbsolutePath().replace(file.getName(), outputFileName);
+        
+        VMCodeWriter codeWriter = new VMCodeWriter(outputFilePath);
+        CodeCompilationEngine compiler = new CodeCompilationEngine(tokenizer, codeWriter);
         compiler.compileClass();
 
-        String[] parts = StringUtils.split(file.getName(), ".");
-        String outputFileName = String.format("%s.xml", parts[0]);
-        String outputFilePath = file.getAbsolutePath().replace(file.getName(), outputFileName);
+        //writer.writeToFile(compiler.generateCode());
 
-        CodeWriter writer = new JackCodeWriter();
-        writer.writeToFile(compiler.toXML(), outputFilePath);
     }
 
 }

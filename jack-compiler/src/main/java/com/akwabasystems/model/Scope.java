@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class Scope {
     protected String name;
     protected ScopeType type;
+    protected Scope parentScope;
     protected ConcurrentMap<String,Identifier> symbolTable;
     protected ConcurrentMap<String,AtomicLong> varCount;
 
@@ -86,8 +87,45 @@ public abstract class Scope {
     }
     
     
+    protected void setParentScope(Scope parentScope) {
+        this.parentScope = parentScope;
+    }
+    
+    
+    protected Scope getParentScope() {
+        return parentScope;
+    }
+    
+    
+    public Identifier resolve(String name) {
+        Identifier identifier = symbolTable.get(name);
+        
+        if (identifier != null) {
+            return identifier;
+        }
+        
+        return (parentScope != null)? parentScope.resolve(name) : null;
+    }
+    
+    
+    
     @Override
     public String toString() {
         return String.format("Scope { type: %s, name: %s }", type, name);
+    }
+    
+    
+    protected String describe() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("Scope: Name: %s, Type: %s\n", this.name, this.type));
+        
+        symbolTable.keySet().stream().forEach((key) -> {
+            Identifier identifier = symbolTable.get(key);
+            builder.append(String.format("VarName: %s: %s", key, identifier))
+                   .append("\n");
+        });
+        
+        return builder.toString();
+        
     }
 }
