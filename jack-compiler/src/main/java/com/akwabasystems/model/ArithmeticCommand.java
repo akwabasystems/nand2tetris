@@ -85,20 +85,18 @@ public enum ArithmeticCommand {
     
     
     /**
-     * Returns the assembly code for the given command
+     * Returns the syntax for the given command
      * 
-     * @param command           the command for which to return the assembly code
-     * @return the assembly code for the given command
+     * @return the syntax for the given command
      */
     public abstract String syntax();
     
 
     /**
-     * Returns the enum constant whose command matches the given command. It removes all comments from the command
-     * prior to processing.
+     * Returns the enum constant whose syntax matches the given syntax
      * 
-     * @param command          the command for which to find the enum constant
-     * @return the enum constant whose command matches the given command
+     * @param syntax          the syntax of the enum constant to find
+     * @return the enum constant whose syntax matches the given syntax
      */
     public static ArithmeticCommand fromSyntax(String syntax) {
 

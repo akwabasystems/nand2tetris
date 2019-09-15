@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 
 /**
@@ -73,18 +75,10 @@ public enum IdentifierKind {
      * @return the enum constant whose command matches the given command
      */
     public static IdentifierKind fromText(String text) {
-        
-        if(text == null) {
-            return IdentifierKind.NONE;
-        }
-
-        for(IdentifierKind type : values()) {
-            if(type.text().equals(text)) {
-                return type;
-            }
-        }
-
-        return IdentifierKind.NONE;
+        return Stream.of(values())
+                    .filter((type) -> type.text().equals(text))
+                    .findFirst()
+                    .orElse(IdentifierKind.NONE);
     }
     
 }

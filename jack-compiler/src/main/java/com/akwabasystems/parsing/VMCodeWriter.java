@@ -29,7 +29,6 @@ public class VMCodeWriter {
     
 
     private void prepareForWriting() {
-        System.out.println("------ VMCodeWriter: preparing for writing...");
         if(outputFile == null || writer == null) {
             
             try {
@@ -83,6 +82,7 @@ public class VMCodeWriter {
     
     public void writeLabel(String label) {
         System.out.printf("WRITE_LABEL: %s\n", label);
+        writeToFile(String.format("label %s\n", label));
     }
     
     
@@ -96,15 +96,15 @@ public class VMCodeWriter {
     }
     
     
-    public void writeCall(String name, int nArgs) {
-        System.out.printf("WRITE_CALL - Name: %s - nAgrs: %s\n", name, nArgs);
-        writeToFile(String.format("call %s %s\n", name, nArgs));
+    public void writeCall(String functionName, int nArgs) {
+        System.out.printf("WRITE_CALL - Name: %s - nAgrs: %s\n", functionName, nArgs);
+        writeToFile(String.format("call %s %s\n", functionName, nArgs));
     }
     
     
-    public void writeFunction(String name, int nLocals) {
-        System.out.printf("WRITE_FUNCTION - Name: %s - nLocals: %s\n", name, nLocals);
-        String statement = String.format("function %s %s\n", name, nLocals);
+    public void writeFunction(String functionName, int nLocals) {
+        System.out.printf("WRITE_FUNCTION - Name: %s - nLocals: %s\n", functionName, nLocals);
+        String statement = String.format("function %s %s\n", functionName, nLocals);
         writeToFile(statement);
     }
     
@@ -120,15 +120,23 @@ public class VMCodeWriter {
         switch (op) {
         
             case "+":
+                System.out.println("WRITE_OPERATOR: +");
                 writeToFile("add\n");
                 break;
                 
             case "-":
+                System.out.println("WRITE_OPERATOR: -");
                 writeToFile("sub\n");
                 break;
                 
             case "*":
+                System.out.println("WRITE_OPERATOR: *");
                 writeCall("Math.multiply", 2);
+                break;
+                
+            case "/":
+                System.out.println("WRITE_OPERATOR: /");
+                writeCall("Math.divide", 2);
                 break;
                 
             default:
@@ -144,12 +152,10 @@ public class VMCodeWriter {
     
     
     /**
-     * Writes the given code to the file with the specified name
+     * Writes the given text to the output file
      * 
-     * @param code              the code to write
-     * @param fileName          the name of the file to which to write the code
+     * @param text              the text to write
      */
-    //@Override
     public void writeToFile(String text) {
         
         try {
@@ -165,7 +171,6 @@ public class VMCodeWriter {
     
     
     public void close() {
-        System.out.println("<<<---- Closing writer...");
 
         if (writer != null) {
             try {

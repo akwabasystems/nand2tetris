@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.akwabasystems.model;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,8 +7,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
- *
- * @author vn0gxkl
+ * A class that defines a scope (either a class or a subroutine scope) in which to store the different symbols in a
+ * program. It provides an API for defining symbols with their identifiers. It also provides an API for resolving
+ * those symbols, which involves looking up the symbol in its scope chain.
  */
 public abstract class Scope {
     protected String name;
@@ -22,19 +19,37 @@ public abstract class Scope {
     protected ConcurrentMap<String,AtomicLong> varCount;
 
 
+    /**
+     * @constructor
+     * 
+     * @param name      the name of this scope
+     * @param type      the type of this scope
+     */
     public Scope(String name, ScopeType type) {
         this.name = name;
         this.type = type;
-        symbolTable = new ConcurrentHashMap<String,Identifier>();
-        varCount = new ConcurrentHashMap<String, AtomicLong>();
+        symbolTable = new ConcurrentHashMap<>();
+        varCount = new ConcurrentHashMap<>();
     }
 
 
+    /**
+     * Returns the name for this scope
+     * 
+     * @return the name for this scope
+     */
     public String getName() {
         return name;
     }
 
 
+    /**
+     * Defines a symbol of the specified type and kind
+     * 
+     * @param varName       the name of the symbol to define
+     * @param type          the type of symbol to define
+     * @param kind          the kind of symbol of define
+     */
     public void define(String varName, String type, IdentifierKind kind) {
         AtomicLong index = varCount.get(kind.text());
 
@@ -47,16 +62,26 @@ public abstract class Scope {
         identifier.setIndex(((Long)index.getAndIncrement()).intValue());
         
         symbolTable.putIfAbsent(varName, identifier);
-        System.out.printf("--- Defined symbol: %s - type: %s - kind: %s - index: %s\n", 
-                varName, type, kind, identifier.getIndex());
     }
     
     
+    /**
+     * Returns the total variable count for variables of the given kind
+     * 
+     * @param kind          the kind of variables for which to return the count
+     * @return the total variable count for variables of the given kind
+     */
     public int varCount(IdentifierKind kind) {
         return (varCount.containsKey(kind.text()))? ((AtomicLong)varCount.get(kind.text())).intValue() : 0;
     }
 
 
+    /**
+     * Returns the kind for the given variable name
+     * 
+     * @param varName       the name of the variable for which to retrieve the kind
+     * @return the kind for the given variable name
+     */
     public IdentifierKind kindOf(String varName) {
         if(!symbolTable.containsKey(varName)) {
             return IdentifierKind.NONE;
@@ -67,6 +92,12 @@ public abstract class Scope {
     }
     
     
+    /**
+     * Returns the type for the given variable name
+     * 
+     * @param varName       the name of the variable for which to retrieve the type
+     * @return the type for the given variable name
+     */
     public String typeOf(String varName) {
         if(!symbolTable.containsKey(varName)) {
             return null;
@@ -77,6 +108,12 @@ public abstract class Scope {
     }
     
     
+    /**
+     * Returns the index for the given variable name
+     * 
+     * @param varName          the name of the variable for which to retrieve the index
+     * @return the index for the given variable name
+     */
     public int indexOf(String varName) {
         if(!symbolTable.containsKey(varName)) {
             return -1;
@@ -87,16 +124,32 @@ public abstract class Scope {
     }
     
     
+    /**
+     * Sets the parent scope for the given scope
+     * 
+     * @param parentScope       the parent scope to set for this scope 
+     */
     protected void setParentScope(Scope parentScope) {
         this.parentScope = parentScope;
     }
     
     
+    /**
+     * Returns the parent scope for the given scope
+     * 
+     * @return the parent scope for this scope 
+     */
     protected Scope getParentScope() {
         return parentScope;
     }
     
     
+    /**
+     * Resolves the given symbol in its scope chain
+     * 
+     * @param name      the name of the symbol to resolve
+     * @return the identifier for the symbol with the given name
+     */
     public Identifier resolve(String name) {
         Identifier identifier = symbolTable.get(name);
         
@@ -108,13 +161,20 @@ public abstract class Scope {
     }
     
     
-    
+    /**
+     * Returns a string representation of this scope
+     * 
+     * @return a string representation of this scope
+     */
     @Override
     public String toString() {
         return String.format("Scope { type: %s, name: %s }", type, name);
     }
     
     
+    /**
+     * Outputs the description of the current scope
+     */
     protected String describe() {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Scope: Name: %s, Type: %s\n", this.name, this.type));

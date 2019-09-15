@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 /**
  * An enumeration of the different keyword types of the Jack language. Keywords are considered terminal lexical
@@ -222,18 +224,10 @@ public enum Keyword {
      * @return the enum constant whose string value matches the given text
      */
     public static Keyword fromText(String text) {
-        
-        if(text == null) {
-            return null;
-        }
-        
-        for(Keyword keyword : values()) {
-            if(keyword.toString().equals(text)) {
-                return keyword;
-            }
-        }
-
-        return null;
+        return Stream.of(values())
+                    .filter((keyword) -> keyword.toString().equals(text))
+                    .findFirst()
+                    .orElse(null);
     }
 
 }

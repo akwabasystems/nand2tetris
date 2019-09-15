@@ -21,11 +21,11 @@ import com.akwabasystems.model.TokenType;
  * then takes the appropriate based on the value of that look-ahead token.
  */
 public final class XMLCompilationEngine {
-    private Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
     private Token lookahead;
     private Token currentToken;
     private String className;
-    private SymbolTable symbolTable = new SymbolTable();
+    private final SymbolTable symbolTable = new SymbolTable();
     private final StringBuilder output = new StringBuilder();
 
 
@@ -164,7 +164,6 @@ public final class XMLCompilationEngine {
             match(TokenType.IDENTIFIER);
             identifier = currentToken.getText();
 
-            System.out.printf("Processed type: %s - kind: %s - identifier: %s\n", type, kind, identifier);
             symbolTable.define(identifier, type, kind);
 
             /** Check whether there is a comma-separated list of variables */
@@ -173,7 +172,6 @@ public final class XMLCompilationEngine {
                 match(TokenType.IDENTIFIER);
                 identifier = currentToken.getText();
                 symbolTable.define(identifier, type, kind);
-                System.out.printf("*** Additional var identifier: %s (type: %s, kind: %s)\n", identifier, type, kind);
             }
 
             match(TokenType.SYMBOL);

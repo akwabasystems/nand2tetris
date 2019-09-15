@@ -3,7 +3,7 @@ package com.akwabasystems.model;
 
 
 /**
- * A token is a sequence of characters as defined by the syntax of the Jack language. A token is the basis atom of 
+ * A token is a sequence of characters as defined by the syntax of the Jack language. A token is the basic atom of 
  * a program. It is the result of the lexical analysis process, which groups characters into tokens while ignoring
  * white space and comments.
  * 
@@ -12,8 +12,8 @@ package com.akwabasystems.model;
  * them into valid programmatic structures. The Jack language follows that same logic.
  */
 public final class Token {
-    private TokenType type;
-    private String text;
+    private final TokenType type;
+    private final String text;
     
     
     /**

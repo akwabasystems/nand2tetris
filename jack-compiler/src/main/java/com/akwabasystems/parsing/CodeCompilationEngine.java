@@ -6,10 +6,12 @@ import com.akwabasystems.model.Identifier;
 import com.akwabasystems.model.IdentifierKind;
 import com.akwabasystems.model.Keyword;
 import com.akwabasystems.model.Scope;
+import com.akwabasystems.model.StandardLibrary;
 import com.akwabasystems.model.SymbolTable;
 import com.akwabasystems.model.Token;
 import com.akwabasystems.model.TokenType;
 import com.akwabasystems.utils.VMUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -24,12 +26,12 @@ import com.akwabasystems.utils.VMUtils;
  * then takes the appropriate based on the value of that look-ahead token.
  */
 public final class CodeCompilationEngine {
-    private Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
     private Token lookahead;
     private Token currentToken;
     private String className;
-    private SymbolTable symbolTable = new SymbolTable();
-    private VMCodeWriter codeWriter;
+    private final SymbolTable symbolTable = new SymbolTable();
+    private final VMCodeWriter codeWriter;
     private final StringBuilder output = new StringBuilder();
 
 
@@ -37,6 +39,7 @@ public final class CodeCompilationEngine {
      * Constructor. Initializes this instance with the specified tokenizer
      * 
      * @param tokenizer         the tokenizer to set for this engine
+     * @param codeWriter        the code writer for this engine
      */
     public CodeCompilationEngine(Tokenizer tokenizer, VMCodeWriter codeWriter) {
         this.tokenizer = tokenizer;
@@ -44,6 +47,8 @@ public final class CodeCompilationEngine {
 
         lookahead = tokenizer.nextToken();
         currentToken = lookahead;
+        
+        StandardLibrary.getInstance().initialize();
     }
 
 
@@ -79,9 +84,9 @@ public final class CodeCompilationEngine {
         if(lookahead.getType() == type) {
             currentToken = lookahead;
             
-            if(Grammar.isTerminal(type.text())) {
+            // if(Grammar.isTerminal(type.text())) {
                 // output.append(currentToken.toXML()).append("\n");
-            }
+            // }
 
             advance();
 
@@ -94,7 +99,7 @@ public final class CodeCompilationEngine {
     /**
      * Returns the symbol table for this compilation engine
      * 
-     * @return the symbol 
+     * @return the symbol table for this compilation engine
      */
     public SymbolTable getSymbolTable() {
         return symbolTable;
@@ -102,9 +107,9 @@ public final class CodeCompilationEngine {
     
     
     /**
-     * Returns the XML structure of the parsed code
+     * Returns the generated code for this compilation engine
      * 
-     * @return the XML structure of the parsed code
+     * @return the generated code for this compilation engine
      */
     public String generateCode() {
         return output.toString();
@@ -186,7 +191,7 @@ public final class CodeCompilationEngine {
                 match(TokenType.IDENTIFIER);
                 identifier = currentToken.getText();
                 symbolTable.define(identifier, type, kind);
-                // System.out.printf("*** Additional var identifier: %s (type: %s, kind: %s)\n", identifier, type, kind);
+                System.out.printf("*** Additional var identifier: %s (type: %s, kind: %s)\n", identifier, type, kind);
             }
 
             match(TokenType.SYMBOL);
@@ -241,8 +246,13 @@ public final class CodeCompilationEngine {
             int localVariables = scope.varCount(IdentifierKind.VAR);
             codeWriter.writeFunction(String.format("%s.%s", className, subroutineName), localVariables);
             
-            /** Initialize "this" to point to the current object */
-            codeWriter.initializeThis();
+            /**
+             * Initialize "this" to point to the current object. This should only happens if we're not in
+             * the 'main' method
+             */
+            if (!subroutineName.equals("main")) {
+                codeWriter.initializeThis();
+            }
 
             /** Process statements, if any */
             if(Grammar.predictsStatementsFrom(lookahead)) {
@@ -260,7 +270,7 @@ public final class CodeCompilationEngine {
     
     
     /**
-     * Outputs the structure of the current set of statements
+     * Outputs code for the current set of statements
      */
     private void outputStatements() {
         //output.append("<statements>\n");
@@ -316,7 +326,6 @@ public final class CodeCompilationEngine {
 
         while (Grammar.predictsVarDeclarationFrom(lookahead)) {
             String type;
-            IdentifierKind kind;
             String identifier;
             
             //output.append("<varDec>\n");
@@ -406,7 +415,8 @@ public final class CodeCompilationEngine {
             compileExpression();
             match(TokenType.SYMBOL);
         }
-        
+
+        /** Match the "=" sign */
         match(TokenType.SYMBOL);
         compileExpression();
         
@@ -514,16 +524,34 @@ public final class CodeCompilationEngine {
      */
     private void subroutineCall() {
         match(TokenType.IDENTIFIER);
+        String objectName = "";
+        String functionName = currentToken.getText();
 
         /** Check whether it is a method invocation on an object (Object.fn()) */
         if(Grammar.predictsDotFrom(lookahead)) {
+            objectName = currentToken.getText();
             match(TokenType.SYMBOL);
             match(TokenType.IDENTIFIER);
+            functionName = currentToken.getText();
         }
 
         match(TokenType.SYMBOL);
         compileExpressionList();
         match(TokenType.SYMBOL);
+        
+        String subroutineName = !StringUtils.isEmpty(objectName) ? String.format("%s.%s", objectName, functionName) :
+                functionName;
+
+        /** 
+         * Check whether we're using OS methods and, if so, retrieve the expected argument count; otherwise, resolve
+         * the subroutine in the scope chain. Then output the VM code
+         */
+        if (StandardLibrary.getInstance().isStandardLibraryObject(objectName)) {
+            Integer argumentCount = StandardLibrary.getInstance().getExpectedArguments(objectName, functionName);
+            codeWriter.writeCall(subroutineName, argumentCount.intValue());
+        } else {
+            System.out.println("Outputting regular method invocation");
+        }
     }
 
 
@@ -548,13 +576,13 @@ public final class CodeCompilationEngine {
 
 
     /**
-     * Compiles a (possibly empty) comma-separated list of expressions
+     * Compiles an empty or comma-separated list of expressions
      * 
      * expressionList: ( expression ( ',' expression)* )? ;
      */
     public void compileExpressionList() {
         //output.append("<expressionList>\n");
-
+        
         while(!Grammar.predictsClosingParenthesisFrom(lookahead)) {
             compileExpression();
 
@@ -575,7 +603,7 @@ public final class CodeCompilationEngine {
      * 
      */
     public void compileExpression() {
-        System.out.println("--- Starting expression compilation...");
+        System.out.println("--- Starting expression compilation... currentTerm: " + currentToken.getText());
         //output.append("<expression>\n");
         compileTerm();
         
@@ -595,7 +623,7 @@ public final class CodeCompilationEngine {
     /**
      * Compiles a term. If the current token is an identifier, this method uses the lookahead token in order to 
      * decide between the three alternative parsing rules ("[" implies an array entry, "(" implies a method call, 
-     * an "." implies a property (variable). Any token that is not part of this term should not be advanced over.
+     * and "." implies a property (variable). Any token that is not part of this term should not be advanced over.
      * 
      * term: integerConstant
      *       | stringConstant
@@ -669,9 +697,8 @@ public final class CodeCompilationEngine {
         //output.append("<term>\n");
         match(lookahead.getType());
         String variable = currentToken.getText();
-        System.out.println("====== IdentifierName: " + variable);
         
-        boolean isMethodInvocation = (Grammar.predictsDotFrom(lookahead)|| 
+        boolean isMethodInvocation = (Grammar.predictsDotFrom(lookahead) || 
                 Grammar.predictsOpeningParenthesisFrom(lookahead));
         
         if(Grammar.predictsArrayEntryFrom(lookahead)) {

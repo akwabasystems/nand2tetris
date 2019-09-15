@@ -16,13 +16,12 @@ import com.akwabasystems.utils.VMUtils;
  * if possible, for matching a given token, for outputting the token stream to a file, and more.
  * 
  * It implements the logic for returning the next token, if available, as well as the logic for outputting the
- * XML representation of the code to a given file.
+ * XML or VM representations of the code to a given file.
  * 
  * This class is marked as final and cannot be subclassed.
  */
 public final class JackTokenizer extends Tokenizer {
 
-    
     /**
      * Constructor. Initializes this instance with the given input.
      * 
@@ -39,6 +38,7 @@ public final class JackTokenizer extends Tokenizer {
      * 
      * @return the next token for this tokenizer, if any.
      */
+    @Override
     public Token nextToken() {
         while(currentToken != EOF) {
             
@@ -242,6 +242,7 @@ public final class JackTokenizer extends Tokenizer {
      * @param nodeName          the name of the top-level XML node
      * @return the XML representation of the tokens for this tokenizer.
      */
+    @Override
     public String toXML(String nodeName) {
         StringBuilder builder = new StringBuilder();
         
