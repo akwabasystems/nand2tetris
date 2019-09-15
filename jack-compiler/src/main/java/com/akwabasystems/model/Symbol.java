@@ -1,6 +1,8 @@
 
 package com.akwabasystems.model;
 
+import java.util.stream.Stream;
+
 
 /**
  * An enumeration of the different symbol types of the Jack language. Symbols are considered terminal lexical
@@ -234,18 +236,10 @@ public enum Symbol {
      * @return the enum constant whose string value matches the given text
      */
     public static Symbol fromText(String text) {
-        
-        if(text == null) {
-            return null;
-        }
-        
-        for(Symbol keyword : values()) {
-            if(String.valueOf(keyword.toChar()).equals(text)) {
-                return keyword;
-            }
-        }
-
-        return null;
+        return Stream.of(values())
+                    .filter((keyword) -> String.valueOf(keyword.toChar()).equals(text))
+                    .findFirst()
+                    .orElse(null);
     }
 
 }

@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.akwabasystems.model;
 
+
 /**
- *
- * @author vn0gxkl
+ * A class that represents a subroutine scope. Its parent scope is set to the scope of its enclosing class. 
  */
 public final class SubroutineScope extends Scope { 
     

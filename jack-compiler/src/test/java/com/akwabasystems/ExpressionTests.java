@@ -1,7 +1,7 @@
 
 package com.akwabasystems;
 
-import com.akwabasystems.parsing.CompilationEngine;
+import com.akwabasystems.parsing.XMLCompilationEngine;
 import com.akwabasystems.parsing.JackTokenizer;
 import com.akwabasystems.parsing.Tokenizer;
 import junit.framework.TestCase;
@@ -25,7 +25,7 @@ public class ExpressionTests extends TestCase {
             .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();
@@ -112,7 +112,7 @@ public class ExpressionTests extends TestCase {
             .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
 
         StringBuilder output = new StringBuilder();
@@ -180,7 +180,7 @@ public class ExpressionTests extends TestCase {
              .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();
@@ -266,7 +266,7 @@ public class ExpressionTests extends TestCase {
              .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();
@@ -331,7 +331,7 @@ public class ExpressionTests extends TestCase {
              .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();
@@ -414,7 +414,7 @@ public class ExpressionTests extends TestCase {
              .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
 
         StringBuilder output = new StringBuilder();
@@ -525,7 +525,7 @@ public class ExpressionTests extends TestCase {
             .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();
@@ -581,7 +581,7 @@ public class ExpressionTests extends TestCase {
             .append("}\n");
         
         Tokenizer tokenizer = new JackTokenizer(input.toString());
-        CompilationEngine compiler = new CompilationEngine(tokenizer);
+        XMLCompilationEngine compiler = new XMLCompilationEngine(tokenizer);
         compiler.compileClass();
         
         StringBuilder output = new StringBuilder();

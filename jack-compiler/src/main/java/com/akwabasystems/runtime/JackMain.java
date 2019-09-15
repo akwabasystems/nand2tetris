@@ -7,6 +7,7 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import com.akwabasystems.parsing.Analyzer;
 import com.akwabasystems.utils.VMUtils;
+import java.util.stream.Stream;
 
 
 /**
@@ -20,7 +21,7 @@ import com.akwabasystems.utils.VMUtils;
  * Options:
  *      --xml-tokens        Outputs an XML file with the tokens contained in the input code
  *      --xml-tree          Outputs an XML file with the syntax tree of the input code
- *                          Both options are mutually exclusive
+ *      --code-gen          Generates VM code from the source files (default option)
  * 
  *      fileOrDirectory     The file or directory to parse. Each ".jack" file will be parsed into its equivalent
  *                          ".xml" or ".vm" output
@@ -29,6 +30,9 @@ import com.akwabasystems.utils.VMUtils;
 public final class JackMain {
 
     private static OutputType outputType = OutputType.CODE_GENERATION;
+    private static final String XML_TOKENS_FLAG = "--xml-tokens";
+    private static final String XML_TREE_FLAG = "--xml-tree";
+    private static final String CODE_GEN_FLAG = "--code-gen";
 
 
     /**
@@ -48,6 +52,7 @@ public final class JackMain {
                   .append("Options:\n")
                   .append("\t--xml-tokens\t\tOutputs an XML file with the tokens contained in the input code\n")
                   .append("\t--xml-tree\t\tOutputs an XML file with the syntax tree of the input code\n")
+                  .append("\t--code-gen\t\tGenerates VM code from the source files (default option)\n")
                   .append("\t\t\t\tBoth options are mutually exclusive\n")
                   .append("\t<fileOrDirectory>\tThe file or directory to parse. Each \".jack\" file will be parsed \n")
                   .append("\t\t\t\tinto its equivalent \".xml\" or \".vm\" output.\n");
@@ -56,20 +61,28 @@ public final class JackMain {
         }
 
         if(args.length == 2) {
-            boolean shouldOutputXMLTokens = (args[0].equals("--xml-tokens"));
-            boolean shouldOutputXMLTree = (args[0].equals("--xml-tree"));
+            boolean shouldOutputXMLTokens = Stream.of(args).anyMatch((arg) -> arg.equalsIgnoreCase(XML_TOKENS_FLAG));
+            boolean shouldOutputXMLTree = Stream.of(args).anyMatch((arg) -> arg.equalsIgnoreCase(XML_TREE_FLAG));
             
             if(shouldOutputXMLTokens) {
                 outputType = OutputType.XML_TOKENS;
             } else if(shouldOutputXMLTree) {
                 outputType = OutputType.XML_TREE;
             }
-            
-            inputFileArgument = args[1];
+
+            inputFileArgument = Stream.of(args)
+                                    .filter((arg) -> {
+                                        return !(arg.equalsIgnoreCase(XML_TOKENS_FLAG) || 
+                                                arg.equalsIgnoreCase(XML_TREE_FLAG) || 
+                                                arg.equalsIgnoreCase(CODE_GEN_FLAG));
+                                     })
+                                    .findFirst()
+                                    .orElse(null);
+
         } else {
             inputFileArgument = args[0];
         }
-        
+
         boolean isValidInput = false;
         File inputFile = new File(inputFileArgument);
         

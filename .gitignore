@@ -1,2 +1,6 @@
 
 .DS_Store
+/vm-emulator/target/
+target/
+*.class
+*.jar
