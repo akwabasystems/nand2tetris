@@ -1,6 +1,7 @@
 
 package com.akwabasystems.model;
 
+import org.json.JSONObject;
 
 /**
  * A class that maintains a mapping between symbols found in a program and the identifier properties needed for
@@ -46,9 +47,28 @@ public class SymbolTable {
      * @param kind          the kind of symbol of define
      */
     public void define(String name, String type, IdentifierKind kind) {
-        boolean hasClassScope = (kind == IdentifierKind.STATIC || kind == IdentifierKind.FIELD);
+        define(name, type, kind, null);
+    }
+
+
+    /**
+     * Defines a symbol in the respective scope based on its type
+     * 
+     * @param name          the name of the symbol to define
+     * @param type          the type of symbol to define
+     * @param kind          the kind of symbol of define
+     */
+    public void define(String name, String type, IdentifierKind kind, JSONObject attributes) {
+        boolean hasClassScope = (kind == IdentifierKind.STATIC || kind == IdentifierKind.FIELD ||
+            kind == IdentifierKind.METHOD);
         
-        if(hasClassScope) {
+        /**
+         * Check whether we're defining a class method symbol, which stores attributes such as the
+         * argument length and the return type
+         */
+        if (hasClassScope && attributes != null) {
+            classScope.define(name, type, kind, attributes);
+        } else if(hasClassScope) {
             classScope.define(name, type, kind);
         } else {
             subroutineScope.define(name, type, kind);

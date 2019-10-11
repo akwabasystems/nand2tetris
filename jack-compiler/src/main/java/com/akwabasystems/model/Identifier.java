@@ -1,15 +1,19 @@
 
 package com.akwabasystems.model;
 
+import org.json.JSONObject;
+
 
 /**
- * A class that encapsultes the details of a symbol found it a program: name, type, type, index, and kind
+ * A class that encapsultes the details of a symbol found it a program: name, type, index, kind,
+ * attributes, etc.
  */
 public class Identifier {
     private final String name;
     private final String type;
     private int index;
     private IdentifierKind kind = IdentifierKind.VAR;
+    private JSONObject attributes = new JSONObject();
    
    
     /**
@@ -77,13 +81,34 @@ public class Identifier {
 
 
     /**
+     * Returns the extra attributes for this identifier
+     * 
+     * @return the extra attributes for this identifier 
+     */
+    public JSONObject getAttributes() {
+        return attributes;
+    }
+
+
+    /**
+     * Sets the extra attributes for this identifier
+     * 
+     * @param attributes      the extra attributes to set for this identifier
+     */
+    public void setAttributes(JSONObject attributes) {
+        this.attributes = attributes;
+    }
+
+
+    /**
      * Returns a string representation of this identifier
      * 
      * @return a string representation of this identifier
      */
     @Override
     public String toString() {
-        return String.format("Identifier { name: %s, type: %s, kind: %s, index: %s }", name, type, kind, index);
+        return String.format("Identifier { name: %s, type: %s, kind: %s, index: %s, attributes: %s }",
+          name, type, kind, index, attributes.toString());
     } 
    
 }

@@ -48,6 +48,15 @@ public enum IdentifierKind {
         }
         
     },
+
+    METHOD {        
+
+        @Override
+        public String text() {
+            return "method";
+        }
+        
+    },
     
     
     NONE {
