@@ -34,8 +34,18 @@ public abstract class Tokenizer {
         currentIndex = 0;
         currentToken = input.charAt(currentIndex);
     }
+
     
-    
+    /**
+     * Returns the input for this tokenizer
+     * 
+     * @return the input for this tokenizer
+     */
+    public String getInput() {
+      return input;
+    }
+
+
     /**
      * Returns true if the current token is alphanumeric (consisting of letters, digits, and/or the "underscore"
      * character); otherwise, returns false.

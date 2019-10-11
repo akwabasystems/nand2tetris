@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.json.JSONObject;
+
 
 /**
  * A class that defines a scope (either a class or a subroutine scope) in which to store the different symbols in a
@@ -51,19 +53,35 @@ public abstract class Scope {
      * @param kind          the kind of symbol of define
      */
     public void define(String varName, String type, IdentifierKind kind) {
-        AtomicLong index = varCount.get(kind.text());
-
-        if(index == null) {
-            index = new AtomicLong(0);
-            varCount.put(kind.text(), index);
-        }
-
-        Identifier identifier = new Identifier(varName, type, kind);
-        identifier.setIndex(((Long)index.getAndIncrement()).intValue());
-        
-        symbolTable.putIfAbsent(varName, identifier);
+        define(varName, type, kind, null);
     }
     
+
+    /**
+     * Defines a symbol of the specified type, kind, and attributes
+     * 
+     * @param varName         the name of the symbol to define
+     * @param type            the type of symbol to define
+     * @param kind            the kind of symbol of define
+     * @param attributes      the extra attributes for this symbol
+     */
+    protected void define(String varName, String type, IdentifierKind kind, JSONObject attributes) {
+        AtomicLong index = varCount.get(kind.text());
+
+          if(index == null) {
+              index = new AtomicLong(0);
+              varCount.put(kind.text(), index);
+          }
+
+          Identifier identifier = new Identifier(varName, type, kind);
+          identifier.setIndex(((Long)index.getAndIncrement()).intValue());
+
+          if (attributes != null) {
+              identifier.setAttributes(attributes);
+          }
+          
+          symbolTable.putIfAbsent(varName, identifier);
+    }
     
     /**
      * Returns the total variable count for variables of the given kind
@@ -186,6 +204,6 @@ public abstract class Scope {
         });
         
         return builder.toString();
-        
     }
+    
 }

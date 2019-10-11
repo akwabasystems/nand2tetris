@@ -112,6 +112,17 @@ public class Grammar {
         return UNARY_OPERATORS.contains(element);
     }
     
+
+    /**
+     * Returns true if the given token represents a minus sign; otherwise, returns false
+     * 
+     * @param token         the token to check
+     * @return true if the given token represents a minus sign; otherwise, returns false
+     */
+    public static boolean isMinusSign(Token token) {
+        return token.getText().equals("-");
+    }
+
     
     /**
      * Returns true if the given element is a keyword constant; otherwise, returns false
