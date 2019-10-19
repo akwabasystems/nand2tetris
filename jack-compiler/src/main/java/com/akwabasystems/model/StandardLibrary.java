@@ -58,7 +58,7 @@ public class StandardLibrary {
         library.put("String", stringAPI);
         
         Map<String,Integer> arrayAPI = new HashMap<>();
-        arrayAPI.put("new", 0);
+        arrayAPI.put("new", 1);
         arrayAPI.put("dispose", 0);
         library.put("Array", arrayAPI);
         

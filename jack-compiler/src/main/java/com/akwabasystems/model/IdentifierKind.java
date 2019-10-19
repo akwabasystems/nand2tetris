@@ -49,11 +49,12 @@ public enum IdentifierKind {
         
     },
 
-    METHOD {        
+
+    SUBROUTINE {        
 
         @Override
         public String text() {
-            return "method";
+            return "subroutine";
         }
         
     },

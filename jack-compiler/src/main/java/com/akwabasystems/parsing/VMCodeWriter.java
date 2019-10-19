@@ -2,11 +2,13 @@
 package com.akwabasystems.parsing;
 
 
-import com.akwabasystems.model.Segment;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import com.akwabasystems.model.Segment;
+
 
 
 /**
@@ -61,10 +63,41 @@ public class VMCodeWriter {
     
     
     /**
+     * Outputs VM code for initializing a class constructor
+     */
+    public void initializeConstructor(int fields) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("push constant %s\n", fields))
+               .append("call Memory.alloc 1\n")
+               .append("pop pointer 0\n");
+        writeToFile(builder.toString());
+    }
+
+
+    /**
+     * Outputs VM code for referencing the "this" keyword
+     */ 
+    public void writeThisReference() {
+        writeToFile("push pointer 0\n");
+    }
+
+
+    /**
+     * Outputs VM code for referencing the "that" keyword
+     */ 
+    public void writeThatReference() {
+        writeToFile("push pointer 1\n");
+    }
+
+
+    /**
      * Outputs VM code for initializing the "this" keyword inside an instance method
      */
     public void initializeThis() {
-        writeToFile("push argument 0\npop pointer 0\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("push argument 0\n")
+               .append("pop pointer 0\n");
+        writeToFile(builder.toString());
     }
     
     
@@ -214,7 +247,10 @@ public class VMCodeWriter {
         switch (constant) {
         
             case "true":
-                writeToFile("push constant 0\nnot\n");
+                StringBuilder builder = new StringBuilder();
+                builder.append("push constant 0\n")
+                       .append("not\n");
+                writeToFile(builder.toString());
                 break;
                 
             case "false":
@@ -227,13 +263,33 @@ public class VMCodeWriter {
                 break;
 
             case "this":
-                /** To-Do: To be implemented */
-                writeToFile("[this]\n");
+                writeToFile("push pointer 0\n");
                 break;
 
             default:
                 break;
         }
+    }
+
+
+    /**
+     * Outputs VM code for writing a string constant
+     *
+     * @param string        the string constant to output
+     */
+    public void writeStringConstant(String string) {
+        StringBuilder builder = new StringBuilder();
+        int length = string.length();
+
+        builder.append(String.format("push constant %s\n", length))
+               .append("call String.new 1\n");
+
+        for (int i = 0; i < length; i++) {
+            builder.append(String.format("push constant %s\n", Integer.valueOf(string.charAt(i))))
+                   .append("call String.appendChar 2\n");
+        }
+
+        writeToFile(builder.toString());
     }
 
 

@@ -60,7 +60,7 @@ public class SymbolTable {
      */
     public void define(String name, String type, IdentifierKind kind, JSONObject attributes) {
         boolean hasClassScope = (kind == IdentifierKind.STATIC || kind == IdentifierKind.FIELD ||
-            kind == IdentifierKind.METHOD);
+            kind == IdentifierKind.SUBROUTINE);
         
         /**
          * Check whether we're defining a class method symbol, which stores attributes such as the
