@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import com.akwabasystems.model.Segment;
 
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -273,14 +274,14 @@ public class VMCodeWriter {
 
 
     /**
-     * Outputs VM code for writing a string constant
+     * Outputs VM code for pushing a keyword constant on the stack ("true", "false", "this", or "null")
      *
-     * @param string        the string constant to output
+     * @param constant      the constant to push
      */
     public void writeStringConstant(String string) {
         StringBuilder builder = new StringBuilder();
         int length = string.length();
-
+        
         builder.append(String.format("push constant %s\n", length))
                .append("call String.new 1\n");
 

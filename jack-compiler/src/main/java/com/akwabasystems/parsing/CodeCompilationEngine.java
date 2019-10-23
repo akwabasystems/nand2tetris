@@ -275,6 +275,14 @@ public final class CodeCompilationEngine {
 
             /** Process parameter list */
             match(TokenType.SYMBOL);
+
+            /**
+             * If this is a method, define "this" as the first argument so that other arguments can be offset by 1
+             */
+            if (isMethod) {
+                symbolTable.define("this", className, IdentifierKind.ARGUMENT);
+            }
+
             compileParameterList();
             match(TokenType.SYMBOL);
 
@@ -433,11 +441,24 @@ public final class CodeCompilationEngine {
         match(TokenType.IDENTIFIER);
         String identifierName = currentToken.getText();
         Identifier identifier = symbolTable.currentSubroutineScope().resolve(identifierName);
+        boolean isArrayExpression = false;
         
         /** Check whether it is an array property access statement (i.e let a[i] = j) */
         if(Grammar.predictsArrayEntryFrom(lookahead)) {
+            isArrayExpression = true;
+            Identifier arrayVariable = symbolTable.currentSubroutineScope().resolve(currentToken.getText());
+            
+            if (arrayVariable == null) {
+                throw new Error(String.format("Unable to find symbol '%s'\n", currentToken.getText()));
+            }
+
             match(TokenType.SYMBOL);
             compileExpression();
+
+            /** Output code for a[i], which can be rewrittern as *(a + i) */
+            String segment = segmentFromIdentifier(arrayVariable);
+            codeWriter.writeToFile(String.format("push %s %s\nadd\n", segment, arrayVariable.getIndex()));
+
             match(TokenType.SYMBOL);
         }
 
@@ -449,12 +470,23 @@ public final class CodeCompilationEngine {
         if (identifier == null) {
             output = String.format("<Exception: Could not find the following symbol: '%s'>\n", identifierName);
         } else {
-            String segment = (identifier.getKind() == IdentifierKind.FIELD)? "this" :
-                (identifier.getKind() == IdentifierKind.VAR)? "local" :
-                (identifier.getKind() == IdentifierKind.ARGUMENT)? "argument" :
-                (identifier.getKind() == IdentifierKind.STATIC)? "static" : "";
-            
-            output = String.format("pop %s %s\n", segment, identifier.getIndex());
+            if (isArrayExpression) {
+                /**
+                 * For an array expression such as "a[i] = j", whis is equivale to *(a + i) = j, the result of
+                 * evaluating (a + i) has already been pushed onto to stack. And since we're also pushing the result
+                 * of evaluating j, we need to pop that result to a temp segment in order to access the memory
+                 * pointer for "that", which is used to store a[i].
+                 */
+                StringBuilder builder = new StringBuilder();
+                builder.append("pop temp 0\n")
+                       .append("pop pointer 1\n")
+                       .append("push temp 0\n")
+                       .append("pop that 0\n");
+                output = builder.toString();
+            } else {
+                String segment = segmentFromIdentifier(identifier);
+                output = String.format("pop %s %s\n", segment, identifier.getIndex());
+            }
         }
 
         codeWriter.writeToFile(output);
@@ -622,9 +654,8 @@ public final class CodeCompilationEngine {
         boolean isMethod = false;
         boolean isInstanceVariable = false;
         JSONObject attributes = new JSONObject();
-
         Identifier identifier = null;
-        
+
         if (isFromCurrentClass) {
             identifier = symbolTable.currentClassScope().resolve(functionName);
         }
@@ -679,6 +710,9 @@ public final class CodeCompilationEngine {
                     codeWriter.writeToFile(output);
                     codeWriter.writeCall(String.format("%s.%s", identifier.getType(), functionName), 1);
                 }
+            } else {
+              /** Default case: simply output the method call as "call object.methodName args" */
+              codeWriter.writeCall(String.format("%s.%s", objectName, functionName), expressionArgCount);
             }
         }
     }
@@ -833,9 +867,25 @@ public final class CodeCompilationEngine {
                 Grammar.predictsOpeningParenthesisFrom(lookahead));
         
         if(Grammar.predictsArrayEntryFrom(lookahead)) {
+            Identifier arrayVariable = symbolTable.currentSubroutineScope().resolve(currentToken.getText());
+
+            if (arrayVariable == null) {
+                throw new Error(String.format("Unable to find symbol '%s'\n", currentToken.getText()));
+            }
+  
             match(TokenType.SYMBOL);
             compileExpression();
             match(TokenType.SYMBOL);
+
+            /** Output code for the array access expression (right hand side) of an expression such as let b = a[i] */
+            String segment = segmentFromIdentifier(arrayVariable);
+            StringBuilder builder = new StringBuilder();
+            builder.append(String.format("push %s %s\n", segment, arrayVariable.getIndex()))
+                   .append("add\n")
+                   .append("pop pointer 1\n")
+                   .append("push that 0\n");
+            codeWriter.writeToFile(builder.toString());
+
         } else if(isMethodInvocation) {
             /**
              * A method invocation can be a fully qualified string such as "Object.method(args)", or an
@@ -911,7 +961,6 @@ public final class CodeCompilationEngine {
                 }
             }
         }
-
     }
 
 
@@ -922,9 +971,10 @@ public final class CodeCompilationEngine {
      * @return the segment for the specified identifier, or an empty string if its kind is unknown
      */
     private String segmentFromIdentifier(Identifier identifier) {
-      return (identifier.getKind() == IdentifierKind.FIELD) ? "this" : 
-          (identifier.getKind() == IdentifierKind.ARGUMENT) ? "argument" : 
-          (identifier.getKind() == IdentifierKind.VAR) ? "local" : "";
+      return (identifier.getKind() == IdentifierKind.FIELD)? "this" :
+                    (identifier.getKind() == IdentifierKind.VAR)? "local" :
+                    (identifier.getKind() == IdentifierKind.ARGUMENT)? "argument" :
+                    (identifier.getKind() == IdentifierKind.STATIC)? "static" : "";
     }
 
 }
