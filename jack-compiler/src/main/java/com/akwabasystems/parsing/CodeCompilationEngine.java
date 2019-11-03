@@ -519,8 +519,9 @@ public final class CodeCompilationEngine {
         int sequence = ifIndex;
         ifCounts.put(currentSubroutine, ++ifIndex);
 
-        String ifLabel = String.format("IF_TRUE%s", sequence);
-        String elseLabel = String.format("IF_FALSE%s", sequence);
+        String ifTrue = String.format("IF_TRUE%s", sequence);
+        String ifFalse = String.format("IF_FALSE%s", sequence);
+        String ifEnd = String.format("IF_END%s", sequence);
 
         match(TokenType.KEYWORD);
         match(TokenType.SYMBOL);
@@ -529,15 +530,15 @@ public final class CodeCompilationEngine {
          * Evaluate the expression and output code for the 'if' condition
          */
         compileExpression();
-        codeWriter.writeIfGoto(ifLabel);
+        codeWriter.writeIfGoto(ifTrue);
 
         /** 
          * Output the code for jumping to the 'else' clause, even if there is none. It will simply
          * contain an empty statement list in that case.
          */
-        codeWriter.writeGoto(elseLabel);
+        codeWriter.writeGoto(ifFalse);
 
-        codeWriter.writeLabel(ifLabel);
+        codeWriter.writeLabel(ifTrue);
         match(TokenType.SYMBOL);
         match(TokenType.SYMBOL);
   
@@ -547,8 +548,14 @@ public final class CodeCompilationEngine {
 
         match(TokenType.SYMBOL);
 
+        /**
+         * Output the "goto IF_END" label prior to outputting the "IF_FALSE" statement. This is
+         * needed to handle nested "if/else" statements.
+         */
+        codeWriter.writeGoto(ifEnd);
+
         /** Output the statements for the 'else' clause, if any */
-        codeWriter.writeLabel(elseLabel);
+        codeWriter.writeLabel(ifFalse);
 
         if(Grammar.predictsElseClauseFrom(lookahead)) {
             match(TokenType.KEYWORD);
@@ -560,6 +567,9 @@ public final class CodeCompilationEngine {
 
             match(TokenType.SYMBOL);
         }
+
+        /** Output the end for this "if/else" statement */
+        codeWriter.writeLabel(ifEnd);
     }
 
 
@@ -686,6 +696,16 @@ public final class CodeCompilationEngine {
                 (identifier.getKind() == IdentifierKind.VAR || identifier.getKind() == IdentifierKind.FIELD)
             );
         }
+        
+        /** 
+         * If we're calling a method on an instance variable, we first need to push its reference, which
+         * will point to the 'this' keyword.
+         */
+        if (isInstanceVariable) {
+            String segment = segmentFromIdentifier(identifier);
+            String output = String.format("push %s %s\n", segment, identifier.getIndex());
+            codeWriter.writeToFile(output);
+        }
 
         match(TokenType.SYMBOL);
         compileExpressionList();
@@ -705,10 +725,11 @@ public final class CodeCompilationEngine {
                     argumentCount = isMethod? argumentCount + 1 : argumentCount;
                     codeWriter.writeCall(identifier.getType(), argumentCount);
                 } else if (isInstanceVariable) {
-                    String segment = segmentFromIdentifier(identifier);
-                    String output = String.format("push %s %s\n", segment, identifier.getIndex());
-                    codeWriter.writeToFile(output);
-                    codeWriter.writeCall(String.format("%s.%s", identifier.getType(), functionName), 1);
+                    /**
+                     * This is an instance variable, and we've already pushed the reference to 'this' onto the stack.
+                     * So we need to increment the argument count by 1.
+                     */
+                    codeWriter.writeCall(String.format("%s.%s", identifier.getType(), functionName), expressionArgCount + 1);
                 }
             } else {
               /** Default case: simply output the method call as "call object.methodName args" */
@@ -900,7 +921,7 @@ public final class CodeCompilationEngine {
 
             if(Grammar.predictsDotFrom(lookahead)) {
                 if (!currentToken.getText().equals("this") || !currentToken.getText().equals(className)) {
-                  object = currentToken.getText();
+                    object = currentToken.getText();
                 }
                 
                 match(TokenType.SYMBOL);
@@ -912,9 +933,22 @@ public final class CodeCompilationEngine {
              * Resolve the method name in the current class scope only if it is a class method
              */
             Identifier identifier = null;
+            Identifier instanceIdentifier = null;
             
             if (object.equals(className)) {
                 identifier = symbolTable.currentClassScope().resolve(methodName);
+            } else {
+                instanceIdentifier = symbolTable.currentSubroutineScope().resolve(object);
+            }
+
+            /** 
+             * If we're calling a method on an instance variable, we first need to push its reference, which
+             * will point to the 'this' keyword.
+             */
+            if (instanceIdentifier != null) {
+                String segment = segmentFromIdentifier(instanceIdentifier);
+                String output = String.format("push %s %s\n", segment, instanceIdentifier.getIndex());
+                codeWriter.writeToFile(output);
             }
 
             match(TokenType.SYMBOL);
@@ -936,12 +970,14 @@ public final class CodeCompilationEngine {
                     codeWriter.writeCall(methodName, argumentCount.intValue());
                 } else {
                   /**
-                   * At this point, it is safe to assume that we're dealing with a constructor expression such as "SquareGame.new".
-                   * This is because a typical object method invocation such as "game.run()" will be processed as "do game.run()",
-                   * which is handled by the "subroutineCall" logic. So we simply output the method invocation with a 0 argument count.
+                   * At this point, it is safe to assume that we're dealing with a method invocation such such as "SquareGame.new()" or "ball.move()".
                    */
-                  methodName = String.format("%s.%s", object, methodName);
-                  codeWriter.writeCall(methodName, expressionArgCount);
+                  if (instanceIdentifier != null) {
+                      codeWriter.writeCall(String.format("%s.%s", instanceIdentifier.getType(), methodName), expressionArgCount + 1);
+                  } else {
+                      methodName = String.format("%s.%s", object, methodName);
+                      codeWriter.writeCall(methodName, expressionArgCount);
+                  }
                 }
             }
 

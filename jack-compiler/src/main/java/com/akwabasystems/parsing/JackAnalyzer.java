@@ -65,7 +65,7 @@ public final class JackAnalyzer implements Analyzer {
             return this;
         }
 
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
 
         if(inputFile.isDirectory()) {
             for(final File file : inputFile.listFiles()) {
@@ -116,6 +116,7 @@ public final class JackAnalyzer implements Analyzer {
      * @param file         the input file to handle
      */
     private void handleFile(final File file) {
+        System.out.printf("Compiling file '%s'\n", file.getAbsolutePath());
         StringBuilder input = new StringBuilder();
 
         try {
