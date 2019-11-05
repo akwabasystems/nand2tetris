@@ -472,7 +472,7 @@ public final class CodeCompilationEngine {
         } else {
             if (isArrayExpression) {
                 /**
-                 * For an array expression such as "a[i] = j", whis is equivale to *(a + i) = j, the result of
+                 * For an array expression such as "a[i] = j", which is equivalent to *(a + i) = j, the result of
                  * evaluating (a + i) has already been pushed onto to stack. And since we're also pushing the result
                  * of evaluating j, we need to pop that result to a temp segment in order to access the memory
                  * pointer for "that", which is used to store a[i].
@@ -910,7 +910,7 @@ public final class CodeCompilationEngine {
         } else if(isMethodInvocation) {
             /**
              * A method invocation can be a fully qualified string such as "Object.method(args)", or an
-             * implicit string such as "method(args)". In the latter case, we need to resolve the target object,
+             * implicit string such as "method(args)". In the former case, we need to resolve the target object,
              * which can be the current class or an instance variable. To handle those use cases, the current
              * logic first initializes the target object to the current class; it then adjusts it to the 
              * appropriate object if the next token is a dot.

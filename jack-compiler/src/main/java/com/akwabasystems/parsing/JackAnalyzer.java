@@ -3,13 +3,10 @@ package com.akwabasystems.parsing;
 
 
 import com.akwabasystems.model.OutputType;
-import com.akwabasystems.utils.VMUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,36 +56,19 @@ public final class JackAnalyzer implements Analyzer {
      * @return a reference to this class instance
      */
     @Override
-    public Analyzer parse(final File inputFile) {
+    public Analyzer parse(final File file) {
 
-        if(!inputFile.exists()) {
+        if(!file.exists()) {
             return this;
         }
 
-        List<File> files = new ArrayList<>();
-
-        if(inputFile.isDirectory()) {
-            for(final File file : inputFile.listFiles()) {
-                if(VMUtils.hasExtension(file, "jack")) {
-                    files.add(file);
-                }
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                handleFile(file);
             }
-        } else {
-            if(VMUtils.hasExtension(inputFile, "jack")) {
-                files.add(inputFile);
-            }
-        }
-
-        files.stream().forEach((file) -> {
-            Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    handleFile(file);
-                }
-            };
-            
-            executor.execute(task);
-        });
+        };
+        executor.execute(task);
  
         /** 
          * Wait for tasks to execute, then shut down the executor. If the current thread is also interrupted, re-cancel 
@@ -116,7 +96,7 @@ public final class JackAnalyzer implements Analyzer {
      * @param file         the input file to handle
      */
     private void handleFile(final File file) {
-        System.out.printf("Compiling file '%s'\n", file.getAbsolutePath());
+        System.out.printf("Compiling '%s'\n", file.getAbsolutePath());
         StringBuilder input = new StringBuilder();
 
         try {
