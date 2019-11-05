@@ -7,6 +7,7 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import com.akwabasystems.parsing.Analyzer;
 import com.akwabasystems.utils.VMUtils;
+
 import java.util.stream.Stream;
 
 
@@ -107,8 +108,18 @@ public final class JackMain {
             return;
         }
 
-        Analyzer analyzer = new JackAnalyzer();
-        analyzer.setOutputType(outputType).parse(inputFile);
+        /** Now process each ".jack" file or a directory of such files */
+        if (inputFile.isDirectory()) {
+            Stream.of(inputFile.listFiles())
+                .filter((File file) -> VMUtils.hasExtension(file, "jack"))
+                .forEach((File file) -> {
+                    Analyzer analyzer = new JackAnalyzer();
+                    analyzer.setOutputType(outputType).parse(file);
+                });
+        } else {
+            Analyzer analyzer = new JackAnalyzer();
+            analyzer.setOutputType(outputType).parse(inputFile);
+        }
     }
 
 }

@@ -259,8 +259,7 @@ public class VMCodeWriter {
                 break;
                 
             case "null":
-                /** To-Do: To be implemented */
-                writeToFile("[null]\n");
+                writeToFile("push constant 0\n");
                 break;
 
             case "this":
