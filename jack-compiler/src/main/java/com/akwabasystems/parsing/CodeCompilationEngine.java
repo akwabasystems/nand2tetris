@@ -46,7 +46,7 @@ public final class CodeCompilationEngine {
 
     /** Maps that keep track of WHILE and IF iteration counts for subroutines */
     private final Map<String,Integer> ifCounts = new ConcurrentHashMap<>();
-    private final Map<String,Integer> whileCounts  = new ConcurrentHashMap<>();
+    private final Map<String,Integer> whileCounts = new ConcurrentHashMap<>();
 
     /**
      * Matches the following:
@@ -72,11 +72,11 @@ public final class CodeCompilationEngine {
 
         lookahead = tokenizer.nextToken();
         currentToken = lookahead;
-        
+
         StandardLibrary.getInstance().initialize();
     }
 
-
+    
     /**
      * Advances the lookahead to the next token
      */
@@ -97,7 +97,7 @@ public final class CodeCompilationEngine {
             match(TokenType.IDENTIFIER);
         }
     }
-    
+
 
     /**
      * Matches the given token type
@@ -112,8 +112,8 @@ public final class CodeCompilationEngine {
             throw new Error(String.format("Expecting %s; found '%s'\n", type.text(), lookahead.getText()));
         }
     }
-
     
+
     /**
      * Returns the symbol table for this compilation engine
      * 
@@ -122,7 +122,7 @@ public final class CodeCompilationEngine {
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
-    
+
     
     /**
      * Returns the generated code for this compilation engine
@@ -140,14 +140,14 @@ public final class CodeCompilationEngine {
      * class: 'class' className '{' classVarDec* subroutineDec* '}'
      */
     public void compileClass() {
-        
+
         if(lookahead.getType() != TokenType.KEYWORD) {
-           throw new Error("This code does not seem to contain a valid class declaration.");
+            throw new Error("This code does not seem to contain a valid class declaration.");
         }
 
         match(TokenType.KEYWORD);
         match(TokenType.IDENTIFIER);
-        
+
         /** Define the top-level scope for the current class */
         className = currentToken.getText();
         symbolTable.startClass(className);
@@ -183,7 +183,7 @@ public final class CodeCompilationEngine {
             String type;
             IdentifierKind kind;
             String identifier;
-            
+
             match(TokenType.KEYWORD);
             kind = IdentifierKind.fromText(currentToken.getText());
             matchType(lookahead);
@@ -235,7 +235,7 @@ public final class CodeCompilationEngine {
             String arguments = currentMatch.group(4);
             int argumentCount = (arguments.length() == 0) ? 0 : arguments.split(",").length;
 
-            /** 
+            /**
              * Define the current method in the class scope, and store its attributes such as argument count and return type
              */
             Map<String,Object> attributes = new HashMap<>();
@@ -258,7 +258,7 @@ public final class CodeCompilationEngine {
             Identifier identifier = symbolTable.currentClassScope().resolve(subroutineName);
             boolean isConstructor = false;
             boolean isMethod = false;
-            
+
             if (identifier != null) {
                 JSONObject attributes = identifier.getAttributes();
 
@@ -288,7 +288,7 @@ public final class CodeCompilationEngine {
 
             /** Process the subroutine body */
             match(TokenType.SYMBOL);
-            
+
             /** Process variable declarations */
             compileVarDec();
 
@@ -312,9 +312,9 @@ public final class CodeCompilationEngine {
 
             match(TokenType.SYMBOL);
         }
- 
+
     }
-    
+
     
     /**
      * Outputs code for the current set of statements
@@ -332,11 +332,11 @@ public final class CodeCompilationEngine {
      * parameterList: ( (type varName) (',' type varName)* )?
      */
     public void compileParameterList() {
-        
+
         while(!Grammar.predictsClosingParenthesisFrom(lookahead)) {
             String paramType;
             String paramID;
-            
+
             matchType(lookahead);
             paramType = currentToken.getText();
             match(TokenType.IDENTIFIER);
@@ -373,7 +373,7 @@ public final class CodeCompilationEngine {
             type = currentToken.getText();
             match(TokenType.IDENTIFIER);
             identifier = currentToken.getText();
-            
+
             symbolTable.define(identifier, type, IdentifierKind.VAR);
 
             while (Grammar.predictsCommaFrom(lookahead)) {
@@ -406,25 +406,25 @@ public final class CodeCompilationEngine {
 
         switch(keyword) {
 
-            case LET:
-                compileLet();
-                break;
+        case LET:
+            compileLet();
+            break;
 
-            case IF:
-                compileIf();
-                break;
+        case IF:
+            compileIf();
+            break;
 
-            case WHILE:
-                compileWhile();
-                break;
+        case WHILE:
+            compileWhile();
+            break;
 
-            case DO:
-                compileDo();
-                break;
+        case DO:
+            compileDo();
+            break;
 
-            default:
-                compileReturn();
-                break;
+        default:
+            compileReturn();
+            break;
 
         }
 
@@ -442,12 +442,12 @@ public final class CodeCompilationEngine {
         String identifierName = currentToken.getText();
         Identifier identifier = symbolTable.currentSubroutineScope().resolve(identifierName);
         boolean isArrayExpression = false;
-        
+
         /** Check whether it is an array property access statement (i.e let a[i] = j) */
         if(Grammar.predictsArrayEntryFrom(lookahead)) {
             isArrayExpression = true;
             Identifier arrayVariable = symbolTable.currentSubroutineScope().resolve(currentToken.getText());
-            
+
             if (arrayVariable == null) {
                 throw new Error(String.format("Unable to find symbol '%s'\n", currentToken.getText()));
             }
@@ -532,7 +532,7 @@ public final class CodeCompilationEngine {
         compileExpression();
         codeWriter.writeIfGoto(ifTrue);
 
-        /** 
+        /**
          * Output the code for jumping to the 'else' clause, even if there is none. It will simply
          * contain an empty statement list in that case.
          */
@@ -541,7 +541,7 @@ public final class CodeCompilationEngine {
         codeWriter.writeLabel(ifTrue);
         match(TokenType.SYMBOL);
         match(TokenType.SYMBOL);
-  
+
         if(Grammar.predictsStatementsFrom(lookahead)) {
             outputStatements();
         }
@@ -686,7 +686,7 @@ public final class CodeCompilationEngine {
         if (isMethod) {
             codeWriter.writeThisReference();
         } else {
-            /** 
+            /**
              * Check whether we're calling a method on an instance variable (for instance, game.run()) and, if so,
              * resolve the identifier to the appropriate variable
              */
@@ -696,8 +696,8 @@ public final class CodeCompilationEngine {
                 (identifier.getKind() == IdentifierKind.VAR || identifier.getKind() == IdentifierKind.FIELD)
             );
         }
-        
-        /** 
+
+        /**
          * If we're calling a method on an instance variable, we first need to push its reference, which
          * will point to the 'this' keyword.
          */
@@ -711,7 +711,7 @@ public final class CodeCompilationEngine {
         compileExpressionList();
         match(TokenType.SYMBOL);
 
-        /** 
+        /**
          * Check whether we're using OS methods and, if so, retrieve the expected argument count; otherwise, resolve
          * the subroutine in the scope chain. Then output the VM code.
          */
@@ -733,7 +733,7 @@ public final class CodeCompilationEngine {
                 }
             } else {
               /** Default case: simply output the method call as "call object.methodName args" */
-              codeWriter.writeCall(String.format("%s.%s", objectName, functionName), expressionArgCount);
+                codeWriter.writeCall(String.format("%s.%s", objectName, functionName), expressionArgCount);
             }
         }
     }
@@ -751,7 +751,7 @@ public final class CodeCompilationEngine {
          * If there is no expression after the "return" keyword, then push "0" to the stack. Otherwise, compile the 
          * expression. 
          */
-        if(Grammar.predictsSymbolFrom(lookahead)) {
+        if (Grammar.predictsSemicolonFrom(lookahead)) {
             match(TokenType.SYMBOL);
             codeWriter.writePushConstant(0);
             codeWriter.writeReturn();
@@ -761,7 +761,7 @@ public final class CodeCompilationEngine {
                 match(TokenType.KEYWORD);
                 codeWriter.writeThisReference();
             } else {
-              compileExpression();
+                compileExpression();
             }
 
             match(TokenType.SYMBOL);
@@ -776,7 +776,7 @@ public final class CodeCompilationEngine {
      * expressionList: ( expression ( ',' expression)* )? ;
      */
     public void compileExpressionList() {
-        /** 
+        /**
          * Reset the argument count for each expression list. This is needed to output the argument
          * count in each "call methodName args" instruction.
          */
@@ -803,7 +803,7 @@ public final class CodeCompilationEngine {
      */
     public void compileExpression() {
         compileTerm();
-        
+
         /** Check whether the next token is an operator and, if so, compile the additional expression(s) */
         while(Grammar.isOperator(lookahead.getText())) {
             String operator = lookahead.getText();
@@ -812,7 +812,7 @@ public final class CodeCompilationEngine {
             codeWriter.writeOperator(operator);
         }
     }
-    
+
     
     /**
      * Compiles a term. If the current token is an identifier, this method uses the lookahead token in order to 
@@ -854,46 +854,41 @@ public final class CodeCompilationEngine {
         }
 
         /** Handle the case for unary operators */
-        if(Grammar.isUnaryOperator(lookahead.getText())) {
+        if (Grammar.isUnaryOperator(lookahead.getText())) {
             match(TokenType.SYMBOL);
-            boolean isNegativeNumber = Grammar.isMinusSign(currentToken) && VMUtils.isNumber(lookahead.getText());
+            boolean isNegationSymbol = Grammar.isMinusSign(currentToken);
 
             compileTerm();
 
-            if (isNegativeNumber) {
-                codeWriter.writeUnaryOperator("-");
-            } else {
-                codeWriter.writeUnaryOperator("~");
-            }
-
+            codeWriter.writeUnaryOperator(!isNegationSymbol ? "~" : "-");
             return;
         }
-        
+
         /** Handle the case for parentheses */
-        if(Grammar.predictsOpeningParenthesisFrom(lookahead)) {
+        if (Grammar.predictsOpeningParenthesisFrom(lookahead)) {
             match(TokenType.SYMBOL);
             compileExpression();
             match(TokenType.SYMBOL);
             return;
         }
-        
-        /** 
+
+        /**
          * At this stage, we're dealing with an identifier, which offers three alternatives: a variable name, an
          * array entry, or a method invocation. Take the appropriate action based on the value of the lookahead token.
          */
         match(lookahead.getType());
         String variable = currentToken.getText();
-        
+
         boolean isMethodInvocation = (Grammar.predictsDotFrom(lookahead) || 
                 Grammar.predictsOpeningParenthesisFrom(lookahead));
-        
+
         if(Grammar.predictsArrayEntryFrom(lookahead)) {
             Identifier arrayVariable = symbolTable.currentSubroutineScope().resolve(currentToken.getText());
 
             if (arrayVariable == null) {
                 throw new Error(String.format("Unable to find symbol '%s'\n", currentToken.getText()));
             }
-  
+
             match(TokenType.SYMBOL);
             compileExpression();
             match(TokenType.SYMBOL);
@@ -923,7 +918,7 @@ public final class CodeCompilationEngine {
                 if (!currentToken.getText().equals("this") || !currentToken.getText().equals(className)) {
                     object = currentToken.getText();
                 }
-                
+
                 match(TokenType.SYMBOL);
                 match(TokenType.IDENTIFIER);
                 methodName = currentToken.getText();
@@ -934,14 +929,14 @@ public final class CodeCompilationEngine {
              */
             Identifier identifier = null;
             Identifier instanceIdentifier = null;
-            
+
             if (object.equals(className)) {
                 identifier = symbolTable.currentClassScope().resolve(methodName);
             } else {
                 instanceIdentifier = symbolTable.currentSubroutineScope().resolve(object);
             }
 
-            /** 
+            /**
              * If we're calling a method on an instance variable, we first need to push its reference, which
              * will point to the 'this' keyword.
              */
@@ -969,22 +964,29 @@ public final class CodeCompilationEngine {
                     methodName = String.format("%s.%s", object, methodName);
                     codeWriter.writeCall(methodName, argumentCount.intValue());
                 } else {
-                  /**
-                   * At this point, it is safe to assume that we're dealing with a method invocation such such as "SquareGame.new()" or "ball.move()".
-                   */
-                  if (instanceIdentifier != null) {
-                      codeWriter.writeCall(String.format("%s.%s", instanceIdentifier.getType(), methodName), expressionArgCount + 1);
-                  } else {
-                      methodName = String.format("%s.%s", object, methodName);
-                      codeWriter.writeCall(methodName, expressionArgCount);
-                  }
+                    /**
+                     * At this point, it is safe to assume that we're dealing with a method invocation such such 
+                     * as "SquareGame.new()" or "ball.move()". 
+                     */
+                    if (instanceIdentifier != null) {
+                        codeWriter.writeCall(String.format("%s.%s", instanceIdentifier.getType(), methodName),
+                                expressionArgCount + 1);
+                    } else {
+                        methodName = String.format("%s.%s", object, methodName);
+                        codeWriter.writeCall(methodName, expressionArgCount);
+                    }
                 }
             }
 
         } else {
-            if (VMUtils.isNumber(variable)) {
+            boolean isString = currentToken.getType() == TokenType.STRING_CONSTANT;
+            boolean isInteger = currentToken.getType() == TokenType.INT_CONSTANT;
+
+            if (isString) {
+                codeWriter.writeStringConstant(variable);
+            } else if (isInteger) {
                 codeWriter.writePushConstant(Integer.parseInt(variable));
-                
+
             } else {
                 Identifier identifier = symbolTable.currentSubroutineScope().resolve(variable);
 
@@ -993,6 +995,7 @@ public final class CodeCompilationEngine {
                     String output = String.format("push %s %s\n", segment, identifier.getIndex());
                     codeWriter.writeToFile(output);
                 } else {
+                    /** Last resort: just output a string */
                     codeWriter.writeStringConstant(variable);
                 }
             }
