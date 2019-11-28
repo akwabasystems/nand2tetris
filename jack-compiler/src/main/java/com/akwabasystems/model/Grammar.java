@@ -158,6 +158,17 @@ public class Grammar {
 
     
     /**
+     * Returns true if a semicolon can be predicted from the specified token; otherwise, returns false
+     * 
+     * @param token         the token from which to make the prediction
+     * @return true if a semicolon can be predicted from the specified token; otherwise, returns false
+     */
+    public static boolean predictsSemicolonFrom(Token token)  {
+        return (token != null && token.getText().equals(";"));
+    }
+    
+    
+    /**
      * Returns true if a keyword can be predicted from the specified token; otherwise, returns false
      * 
      * @param token         the token from which to make the prediction

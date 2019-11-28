@@ -1,0 +1,111 @@
+/**
+ * This library provides two services: direct access to the computer's main memory (RAM), and allocation 
+ * and recycling of memory blocks. The Hack RAM consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+
+    static Array RAM;
+
+    /** 
+	 * Initializes the class. 
+	 */
+    function void init() {
+        let RAM = 0;
+        let RAM[2048] = 14334;
+        let RAM[2049] = 2050;
+        return;
+    }
+
+
+	/**
+	 * Returns the RAM value at the given address. 
+	 *
+	 * @param address		the address for which to return value
+	 * @return the RAM value at the given address
+	 */
+    function int peek(int address) {
+        return RAM[address];
+    }
+
+
+    /** 
+     * Sets the RAM value at the given address to the given value. 
+     *
+     * @param address		the address for which to set the value
+     * @param value			the value to set for the given address
+     */
+    function void poke(int address, int value) {
+	    let RAM[address] = value;
+	    return;
+    }
+
+
+    /** 
+     * Finds an available RAM block of the given size and returns a reference to its base address. 
+     *
+     * @param size		the size of the RAM block to allocate
+     * @return a reference to the base address of the allocated block
+     */
+    function int alloc(int size) {
+        var Array i;
+
+        if (size < 1) {
+            do Sys.error(5);
+        }
+
+        let i = 2048;
+
+        while (i[0] < size) {
+            let i = i[1];
+        }
+
+        if ((i + size) > 16379) {
+            do Sys.error(6);
+        }
+
+        if (i[0] > (size + 2)) {
+            let i[size + 2] = (i[0] - size - 2);
+
+            if (i[1] = (i + 2)) {
+                let i[size + 3] = (i + size + 4);
+            } else {
+                let i[size + 3] = i[1];
+            }
+
+            let i[1] = i + size + 2;
+        }
+
+        let i[0] = 0;
+
+        return (i + 2);
+    }
+
+
+    /** 
+     * De-allocates the given object (cast as an array) by making it available for future allocations. 
+     *
+     * @param object		the object to deallocate
+     */
+    function void deAlloc(Array object) {
+        var Array i, j;
+
+        let i = object - 2;
+        let j = i[1];
+
+        if (j[0] = 0) {
+            let i[0] = i[1] - i - 2;
+        } else {
+            let i[0] = i[1] - i + j[0];
+            
+            if (j[1] = (j + 2)) {
+                let i[1] = i + 2;
+            } else {
+                let i[1] = j[1];
+            }
+        }
+
+        return;
+    }
+
+}
+
