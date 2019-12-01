@@ -63,6 +63,11 @@ public class StandardLibrary {
         library.put("Array", arrayAPI);
         
         Map<String,Integer> outputAPI = new HashMap<>();
+        outputAPI.put("initMap", 0);
+        outputAPI.put("create", 12);
+        outputAPI.put("createShiftedMap", 0);
+        outputAPI.put("getMap", 1);
+        outputAPI.put("drawChar", 1);
         outputAPI.put("moveCursor", 2);
         outputAPI.put("printChar", 1);
         outputAPI.put("printString", 1);

@@ -693,7 +693,9 @@ public final class CodeCompilationEngine {
             identifier = symbolTable.currentSubroutineScope().resolve(objectName);
             isInstanceVariable = (
                 (identifier != null) &&
-                (identifier.getKind() == IdentifierKind.VAR || identifier.getKind() == IdentifierKind.FIELD)
+                (identifier.getKind() == IdentifierKind.VAR ||
+                 identifier.getKind() == IdentifierKind.FIELD ||
+                 identifier.getKind() == IdentifierKind.STATIC)
             );
         }
 
