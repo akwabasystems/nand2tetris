@@ -1,0 +1,371 @@
+/**
+ * A library of functions for displaying graphics on the screen.
+ *
+ * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom) of 256 pixels each (indexed 0..255, left to right).
+ * The top left pixel on the screen is indexed (0,0).
+ */
+class Screen {
+
+	static field squares;
+	static field baseAddress;
+	static field isBlackColor;
+		
+
+	/** 
+	 * Initializes the Screen. 
+	 */
+	function void init() {
+		var int i;
+		let baseAddress = 16384;
+		let isBlackColor = true;
+		let squares = Array.new(17);
+		let squares[0] = 1;
+
+		while (i < 16) {
+			let i = i + 1;
+			let squares[i] = squares[i - 1] + squares[i - 1];
+		}
+
+		return;
+	}
+
+
+	/** 
+	 * Erases the entire screen. 
+	 */
+	function void clearScreen() {
+		var int i;
+
+		while (i < 8192) {
+			let baseAddress[i] = 0;
+			let i = i + 1; 
+		}
+
+		return;
+	}
+
+
+	/**
+	 * Updates the screen location to the given coordinates
+	 *
+	 * @param x			the horizontal position coordinate
+	 * @param y			the vertical position coordinate
+	 */
+	function void updateLocation(int x, int y) {
+		if (isBlackColor) {
+			let baseAddress[x] = (baseAddress[x] | y);
+		} else {
+			let baseAddress[x] = (baseAddress[x] & (~y));
+		}
+
+		return;
+	}
+
+
+	/** 
+	 * Sets the current color, to be used for all subsequent drawXXX commands.
+	 * Black is represented by true, white by false. 
+	 *
+	 * @param b			the color to set
+	*/
+	function void setColor(boolean b) {
+		let isBlackColor = b;
+		return;
+	}
+
+
+	/** 
+	 * Draws the (x,y) pixel, using the current color. 
+	 *
+	 * @param x			the horizontal coordinate of the pixel 
+	 * @param y			the vertical coordinate of the pixel 
+	 */
+	function void drawPixel(int x, int y) {
+		var int i;
+		var int j;
+		var int k;
+
+		if ((x < 0) | (x > 511) | (y < 0) | (y > 255)) {
+			do Sys.error(7);
+		}
+
+		let i = Math.divide(x, 16);
+		let j = x - Math.multiply(i, 16);
+		let k = Math.multiply(y, 32) + i;
+		do Screen.updateLocation(k, squares[j]);
+
+		return;
+	}
+
+
+	/** 
+	 * Draws the (x,y) pixel, using the current color, and according to whether to swap the
+	 * coordinate values. 
+	 *
+	 * @param x				the horizontal coordinate of the pixel 
+	 * @param y				the vertical coordinate of the pixel 
+	 * @param isSwapped		a flag that specifies whether to swap the coordinates
+	*/
+	function void drawConditional(int x, int y, boolean isSwapped) {
+		if (isSwapped) {
+			do Screen.drawPixel(y, x);
+		} else {
+			do Screen.drawPixel(x, y);
+		}
+
+		return;
+	}
+
+
+	/**
+	 * Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. 
+	 *
+	 * @param x1			the horizontal coordinate of the start of the line
+	 * @param y1			the vertical coordinate of the start of the line
+	 * @param x2			the horizontal coordinate of the end of the line
+	 * @param y2			the vertical coordinate of the end of the line
+	*/
+	function void drawLine(int x1, int y1, int x2, int y2) {
+		var int origY;
+		var int origX;
+		var int deltaY;
+		var int deltaX;
+		var int temp;
+		var int dy2Minusdx;
+		var boolean shouldSwap;
+		var boolean moveUp;
+		var int destX;
+		var int dy2;
+		var int dyMinusdx2;
+
+		if ((x1 < 0) | (x2 > 511) | (y1 < 0) | (y2 > 255)) {
+			do Sys.error(8);
+		}
+
+		let deltaX = Math.abs(x2 - x1);
+		let deltaY = Math.abs(y2 - y1);
+		let shouldSwap = (deltaX < deltaY);
+
+		if (((shouldSwap) & (y2 < y1)) | ((~shouldSwap) & (x2 < x1))) {
+			let temp = x1; 
+			let x1 = x2;
+			let x2 = temp;
+			let temp = y1;
+			let y1 = y2;
+			let y2 = temp;
+		}
+
+		if (shouldSwap) {
+			let temp = deltaX;
+			let deltaX = deltaY;
+			let deltaY = temp;
+
+			let origX = y1; 
+			let origY = x1;
+			let destX = y2;
+
+			let moveUp = (x1 > x2);
+		} else {
+			let origX = x1;
+			let origY = y1;
+			let destX = x2;
+
+			let moveUp = (y1 > y2);
+		}
+
+		let dy2Minusdx = Math.multiply(2, deltaY) - deltaX;
+		let dy2 = Math.multiply(2, deltaY);
+		let dyMinusdx2 = Math.multiply(2, deltaY - deltaX);
+
+		do Screen.drawConditional(origX, origY, shouldSwap);
+
+		while (origX < destX) {
+			if (dy2Minusdx < 0) {
+				let dy2Minusdx = dy2Minusdx + dy2;
+			} else {
+				let dy2Minusdx = dy2Minusdx + dyMinusdx2;
+
+				if (moveUp) {
+					let origY = origY - 1;
+				} else {
+					let origY = origY + 1;
+				}
+			}
+
+			let origX = origX + 1;
+			do Screen.drawConditional(origX, origY, shouldSwap);
+		}
+
+		return;
+	}
+
+	/** 
+	 * Draws a filled rectangle whose top left corner is (x1, y1) and bottom right corner 
+	 * is (x2,y2), using the current color. 
+	 *
+	 * @param x1			the top left horizontal coordinate of the rectangle
+	 * @param y1			the top left vertical coordinate of the rectangle
+	 * @param x2			the bottom right horizontal coordinate of the rectangle
+	 * @param y2			the bottom right vertical coordinate of the rectangle
+	*/
+	function void drawRectangle(int x1, int y1, int x2, int y2) {
+		var int a0;
+		var int a1;
+		var int a2;
+		var int a3;
+		var int a4;
+		var int a5;
+		var int a6;
+		var int a7;
+		var int a8;
+
+		if ((x1 > x2) | (y1 > y2) | (x1 < 0) | (x2 > 511) | (y1 < 0) | (y2 > 255)) {
+			do Sys.error(9);
+		}
+
+		let a3 = Math.divide(x1, 16);
+		let a7 = x1 - Math.multiply(a3, 16);
+		let a4 = Math.divide(x2, 16);
+		let a8 = x2 - Math.multiply(a4, 16);
+		let a6 = ~(squares[a7] - 1);
+		let a5 = squares[a8 + 1] - 1;
+		let a0 = Math.multiply(y1, 32) + a3;
+		let a2 = a4 - a3;
+
+		while (~(y1 > y2)) {
+			let a1 = a0 + a2;
+			
+			if (a2 = 0) {
+				do Screen.updateLocation(a0, a5 & a6);
+			} else {
+				do Screen.updateLocation(a0, a6);
+				let a0 = a0 + 1;
+
+				while (a0 < a1) {
+					do Screen.updateLocation(a0, -1);
+					let a0 = a0 + 1;
+				}
+
+				do Screen.updateLocation(a1, a5);
+			}
+
+			let y1 = y1 + 1;
+			let a0 = a1 + 32 - a2;
+		}
+
+		return;
+	}
+
+
+	/** 
+	 * Draws a horizontal line of the specified length from the given (x1, y1) position,
+	 * using the current color. 
+	 *
+	 * @param x1				the horizontal coordinate of the start of the line
+	 * @param y1				the vertical coordinate of the start of the line
+	 * @param length		the length of the line
+	 */
+	function void drawHorizontal(int x1, int y1, int length) {
+		var int a0;
+		var int a1;
+		var int a2;
+		var int a3;
+		var int a4;
+		var int a5;
+		var int a6;
+		var int a7;
+		var int a8;
+		var int a9;
+		var int a10;
+
+		let a7 = Math.min(y1, length);
+		let a8 = Math.max(y1, length);
+
+		if ((x1 > -1) & (x1 < 256) & (a7 < 512) & (a8 > -1)) {
+			let a7 = Math.max(a7, 0);
+			let a8 = Math.min(a8, 511);
+			let a1 = Math.divide(a7, 16);
+			let a9 = a7 - Math.multiply(a1, 16);
+			let a2 = Math.divide(a8, 16);
+			let a10 = a8 - Math.multiply(a2, 16);
+			let a5 = ~(squares[a9] - 1);
+			let a4 = squares[a10 + 1] - 1;
+			let a0 = Math.multiply(x1, 32) + a1;
+			let a6 = a2 - a1;
+			let a3 = a0 + a6;
+
+			if (a6 = 0) {
+				do Screen.updateLocation(a0, a4 & a5);
+			} else {
+				do Screen.updateLocation(a0, a5);
+				let a0 = a0 + 1;
+
+				while (a0 < a3) {
+					do Screen.updateLocation(a0, -1);
+					let a0 = a0 + 1;
+				}
+
+				do Screen.updateLocation(a3, a4);
+			}
+		}
+
+		return;
+	}
+
+
+	/** 
+	 * Draws a symetric rectangle with the specified coordinates, using the current color. 
+	 *
+	 * @param x1			the top left horizontal coordinate of the rectangle
+	 * @param y1			the top left vertical coordinate of the rectangle
+	 * @param x2			the bottom right horizontal coordinate of the rectangle
+	 * @param y2			the bottom right vertical coordinate of the rectangle
+	*/
+	function void drawSymetric(int x1, int y1, int x2, int y2) {
+		do Screen.drawHorizontal(y1 - y2, x1 + x2, x1 - x2);
+		do Screen.drawHorizontal(y1 + y2, x1 + x2, x1 - x2);
+		do Screen.drawHorizontal(y1 - x2, x1 - y2, x1 + y2);
+		do Screen.drawHorizontal(y1 + x2, x1 - y2, x1 + y2);
+		return;
+	}
+
+
+	/**
+	 * Draws a filled circle of radius r<=181 around (x,y), using the current color. 
+	 *
+	 * @param x			the horizontal coordinate of the center of the circle
+	 * @param y			the vertical coordinate of the center of the circle
+	 * @param r			the radius of the circle
+	*/
+	function void drawCircle(int x, int y, int r) {
+		var int i;
+		var int j;
+		var int k;
+
+		if ((x < 0) | (x > 511) | (y < 0) | (y > 255)) {
+			do Sys.error(12);
+		}
+
+		if (((x - r) < 0) | ((x + r) > 511) | ((y - r) < 0) | ((y + r) > 255)) {
+			do Sys.error(13);
+		}
+
+		let j = r;
+		let k = 1 - r;
+		do Screen.drawSymetric(x, y, i, j);
+
+		while (j > i) {
+			if (k < 0) {
+				let k = k + Math.multiply(2, i) + 3;
+			} else {
+				let k = k + Math.multiply(2, i - j) + 5;
+				let j = j - 1;
+			}
+
+			let i = i + 1;
+			do Screen.drawSymetric(x, y, i, j);
+		}
+
+		return;
+	}
+}
