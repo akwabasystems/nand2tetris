@@ -13,7 +13,7 @@ import java.util.Map;
 public class StandardLibrary {
     private static StandardLibrary instance;
     private final Map<String,Map<String,Integer>> library = new HashMap<>();
-
+    
     
     /**
      * Returns a unique instance of this StandardLibrary class
@@ -24,10 +24,10 @@ public class StandardLibrary {
         if (instance == null) {
             instance = new StandardLibrary();
         }
-
+        
         return instance;
     }
-
+    
     
     /**
      * Initializes this standard library by storing the expected argument count for each method in its modules
@@ -42,7 +42,7 @@ public class StandardLibrary {
         mathAPI.put("max", 2);
         mathAPI.put("sqrt", 1);
         library.put("Math", mathAPI);
-
+        
         Map<String,Integer> stringAPI = new HashMap<>();
         stringAPI.put("new", 1);
         stringAPI.put("dispose", 0);
@@ -57,12 +57,12 @@ public class StandardLibrary {
         stringAPI.put("doubleQuote", 0);
         stringAPI.put("newLine", 0);
         library.put("String", stringAPI);
-
+        
         Map<String,Integer> arrayAPI = new HashMap<>();
         arrayAPI.put("new", 1);
         arrayAPI.put("dispose", 0);
         library.put("Array", arrayAPI);
-
+        
         Map<String,Integer> outputAPI = new HashMap<>();
         outputAPI.put("init", 0);
         outputAPI.put("initMap", 0);
@@ -77,7 +77,7 @@ public class StandardLibrary {
         outputAPI.put("println", 0);
         outputAPI.put("backSpace", 0);
         library.put("Output", outputAPI);
-
+        
         Map<String,Integer> screenAPI = new HashMap<>();
         screenAPI.put("init", 0);
         screenAPI.put("clearScreen", 0);
@@ -86,8 +86,12 @@ public class StandardLibrary {
         screenAPI.put("drawLine", 4);
         screenAPI.put("drawRectangle", 4);
         screenAPI.put("drawCircle", 3);
+        screenAPI.put("updateLocation", 2);
+        screenAPI.put("drawConditional", 3);
+        screenAPI.put("drawHorizontal", 3);
+        screenAPI.put("drawSymetric", 4);
         library.put("Screen", screenAPI);
-
+        
         Map<String,Integer> keyboardAPI = new HashMap<>();
         keyboardAPI.put("init", 0);
         keyboardAPI.put("keyPressed", 0);
@@ -95,7 +99,7 @@ public class StandardLibrary {
         keyboardAPI.put("readLine", 1);
         keyboardAPI.put("readInt", 1);
         library.put("Keyboard", keyboardAPI);
-
+        
         Map<String,Integer> memoryAPI = new HashMap<>();
         memoryAPI.put("init", 0);
         memoryAPI.put("peek", 1);
@@ -103,16 +107,16 @@ public class StandardLibrary {
         memoryAPI.put("alloc", 1);
         memoryAPI.put("deAlloc", 1);
         library.put("Memory", memoryAPI);
-
+        
         Map<String,Integer> sysAPI = new HashMap<>();
         sysAPI.put("init", 0);
         sysAPI.put("halt", 0);
         sysAPI.put("error", 1);
         sysAPI.put("wait", 1);
         library.put("Sys", sysAPI);
-
+        
     }
-
+    
     
     /**
      * Returns true if the given name is that of a standard library object; otherwise, returns false
@@ -123,7 +127,7 @@ public class StandardLibrary {
     public boolean isStandardLibraryObject(String name) {
         return library.containsKey(name);
     }
-
+    
     
     /**
      * Returns the expected number of arguments for the given method of the specified standard library object,
@@ -138,7 +142,7 @@ public class StandardLibrary {
         if (!isStandardLibraryObject(object)) {
             return null;
         }
-
+        
         Map<String,Integer> api = library.get(object);
         return api.containsKey(method)? api.get(method) : null;
     }
