@@ -1,10 +1,10 @@
 /**
- * A library of functions for writing text on the screen. The Hack physical screen consists of 512 rows 
- * of 256 pixels each. The library uses a fixed font, in which each character is displayed within a frame 
- * that is 11 pixels high (including 1 pixel for inter-line spacing) and 8 pixels wide (including 2 pixels 
+ * A library of functions for writing text on the screen. The Hack physical screen consists of 512 rows
+ * of 256 pixels each. The library uses a fixed font, in which each character is displayed within a frame
+ * that is 11 pixels high (including 1 pixel for inter-line spacing) and 8 pixels wide (including 2 pixels
  * for inter-character spacing). The resulting grid accommodates 23 rows (indexed 0..22, top to bottom)
- * of 64 characters each (indexed 0..63, left to right). The top left character position on the screen 
- * is indexed (0,0). A cursor, implemented as a small filled square, indicates where the next character 
+ * of 64 characters each (indexed 0..63, left to right). The top left character position on the screen
+ * is indexed (0,0). A cursor, implemented as a small filled square, indicates where the next character
  * will be displayed.
  */
 class Output {
@@ -22,8 +22,8 @@ class Output {
     static Array shiftedCharMaps;
 
 
-    /** 
-     * Initializes the screen, and locates the cursor at the screen's top-left. 
+    /**
+     * Initializes the screen, and locates the cursor at the screen's top-left.
      */
     function void init() {
         let baseAddress = 16384;
@@ -39,16 +39,16 @@ class Output {
     }
 
 
-    /** 
+    /**
      * Initializes the character map array
      */
     function void initMap() {
         let charMaps = Array.new(127);
-        
+
         // Black square, used for displaying non-printable characters.
         do Output.create(0,63,63,63,63,63,63,63,63,63,0,0);
 
-        // Assigns the bitmap for each character in the charachter set.
+        // Assigns the bitmap for each character in the character set.
         // The first parameter is the character index, the next 11 numbers
         // are the values of each row in the frame that represents this character.
         do Output.create(32,0,0,0,0,0,0,0,0,0,0,0);          //
@@ -65,9 +65,9 @@ class Output {
         do Output.create(43,0,0,0,12,12,63,12,12,0,0,0);     // +
         do Output.create(44,0,0,0,0,0,0,0,12,12,6,0);        // ,
         do Output.create(45,0,0,0,0,0,63,0,0,0,0,0);         // -
-        do Output.create(46,0,0,0,0,0,0,0,12,12,0,0);        // .    
+        do Output.create(46,0,0,0,0,0,0,0,12,12,0,0);        // .
         do Output.create(47,0,0,32,48,24,12,6,3,1,0,0);      // /
-        
+
         do Output.create(48,12,30,51,51,51,51,51,30,12,0,0); // 0
         do Output.create(49,12,14,15,12,12,12,12,12,63,0,0); // 1
         do Output.create(50,30,51,48,24,12,6,3,51,63,0,0);   // 2
@@ -78,7 +78,7 @@ class Output {
         do Output.create(55,63,49,48,48,24,12,12,12,12,0,0); // 7
         do Output.create(56,30,51,51,51,30,51,51,51,30,0,0); // 8
         do Output.create(57,30,51,51,51,62,48,48,24,14,0,0); // 9
-        
+
         do Output.create(58,0,0,12,12,0,0,12,12,0,0,0);      // :
         do Output.create(59,0,0,12,12,0,0,12,12,6,0,0);      // ;
         do Output.create(60,0,0,24,12,6,3,6,12,24,0,0);      // <
@@ -147,7 +147,7 @@ class Output {
         do Output.create(120,0,0,0,51,30,12,12,30,51,0,0);     // x
         do Output.create(121,0,0,0,51,51,51,62,48,24,15,0);    // y
         do Output.create(122,0,0,0,63,27,12,6,51,63,0,0);      // z
-        
+
         do Output.create(123,56,12,12,12,7,12,12,12,56,0,0);   // {
         do Output.create(124,12,12,12,12,12,12,12,12,12,0,0);  // |
         do Output.create(125,7,12,12,12,56,12,12,12,7,0,0);    // }
@@ -180,9 +180,9 @@ class Output {
 
         return;
     }
-    
 
-    /** 
+
+    /**
      * Creates the shifted character map array
      */
     function void createShiftedMap() {
@@ -216,7 +216,7 @@ class Output {
     }
 
 
-    /** 
+    /**
      * Returns the character map (array of size 11) of the given character.
      * If the given character is invalid or non-printable, returns the character map of a black square.
      *
@@ -270,8 +270,8 @@ class Output {
     }
 
 
-    /** 
-     * Moves the cursor to the j-th column of the i-th row and erases the character displayed there. 
+    /**
+     * Moves the cursor to the j-th column of the i-th row and erases the character displayed there.
      *
      * @param i         the row to move the cursor to
      * @param j         the column to move the cursor to
@@ -290,9 +290,9 @@ class Output {
     }
 
 
-    /** 
-     * Displays the given character at the cursor location, and advances the cursor 
-     * one column forward. 
+    /**
+     * Displays the given character at the cursor location, and advances the cursor
+     * one column forward.
      *
      * @param c         the character to draw
      */
@@ -304,7 +304,7 @@ class Output {
                 do Output.backSpace();
             } else {
                 do Output.drawChar(c);
-                
+
                 if (~isShifted) {
                     let column = column + 1;
                     let address = address + 1;
@@ -313,7 +313,7 @@ class Output {
                 if (column = 32) {
                     do Output.println();
                 } else {
-                    let isShifted = ~isShifted; 
+                    let isShifted = ~isShifted;
                 }
             }
         }
@@ -322,9 +322,9 @@ class Output {
     }
 
 
-    /** 
+    /**
      * Displays the given string starting at the cursor location,
-     * and advances the cursor appropriately. 
+     * and advances the cursor appropriately.
      *
      * @param s         the string to display
      */
@@ -343,8 +343,8 @@ class Output {
 
 
     /**
-     * Displays the given integer starting at the cursor location, and advances the 
-     * cursor appropriately. 
+     * Displays the given integer starting at the cursor location, and advances the
+     * cursor appropriately.
      *
      * @param i         the integer to display
      */
@@ -355,11 +355,11 @@ class Output {
     }
 
 
-    /** 
-     * Advances the cursor to the beginning of the next line. 
+    /**
+     * Advances the cursor to the beginning of the next line.
      */
     function void println() {
-        let address = (address + 352 - column); 
+        let address = (address + 352 - column);
         let column = 0;
         let isShifted = true;
 
@@ -371,8 +371,8 @@ class Output {
     }
 
 
-    /** 
-     * Moves the cursor one column back. 
+    /**
+     * Moves the cursor one column back.
      */
     function void backSpace() {
         if (isShifted) {
@@ -385,7 +385,7 @@ class Output {
                 if (address = 32) {
                     let address = 8128;
                 }
-                
+
                 let address = address - 321;
             }
 

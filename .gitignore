@@ -4,3 +4,8 @@
 target/
 *.class
 *.jar
+.classpath
+.settings/
+.project
+hack-assembler/bin/
+hack-assembler/.project
