@@ -13,7 +13,6 @@ import java.util.List;
 public enum CommandType {
     
     C_ARITHMETIC {
-        
         @Override
         public List<String> commandList() {
             return Arrays.asList(new String[] {"add", "sub", "neg", "eq", "gt", "lt", "and", "or", "not"});
@@ -61,7 +60,6 @@ public enum CommandType {
         }
     },
     
-    
     C_GOTO {
         @Override
         public List<String> commandList() {
@@ -73,7 +71,6 @@ public enum CommandType {
             return new GotoCommand(command);
         }
     },
-    
     
     C_IF {
         @Override
@@ -87,7 +84,6 @@ public enum CommandType {
         }
     },
     
-    
     C_FUNCTION {
         @Override
         public List<String> commandList() {
@@ -99,7 +95,6 @@ public enum CommandType {
             return new FunctionCommand(command);
         }
     },
-    
     
     C_RETURN {
         @Override
@@ -113,7 +108,6 @@ public enum CommandType {
         }
     },
     
-    
     C_CALL {
         @Override
         public List<String> commandList() {
@@ -125,7 +119,6 @@ public enum CommandType {
             return new CallCommand(command);
         }
     };
-    
     
     /**
      * Returns the list of commands for this enum constant

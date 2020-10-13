@@ -18,7 +18,6 @@ import com.akwabasystems.model.StandardLibrary;
 import com.akwabasystems.model.SymbolTable;
 import com.akwabasystems.model.Token;
 import com.akwabasystems.model.TokenType;
-import com.akwabasystems.utils.VMUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -455,7 +454,7 @@ public final class CodeCompilationEngine {
             match(TokenType.SYMBOL);
             compileExpression();
 
-            /** Output code for a[i], which can be rewrittern as *(a + i) */
+            /** Output code for a[i], which can be rewritten as *(a + i) */
             String segment = segmentFromIdentifier(arrayVariable);
             codeWriter.writeToFile(String.format("push %s %s\nadd\n", segment, arrayVariable.getIndex()));
 
@@ -473,7 +472,7 @@ public final class CodeCompilationEngine {
             if (isArrayExpression) {
                 /**
                  * For an array expression such as "a[i] = j", which is equivalent to *(a + i) = j, the result of
-                 * evaluating (a + i) has already been pushed onto to stack. And since we're also pushing the result
+                 * evaluating (a + i) has already been pushed onto the stack. And since we're also pushing the result
                  * of evaluating j, we need to pop that result to a temp segment in order to access the memory
                  * pointer for "that", which is used to store a[i].
                  */
